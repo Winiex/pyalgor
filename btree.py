@@ -1,34 +1,54 @@
-class BTNode(object):
+from .base import BaseNode, BaseTree
 
-    def __init__(self):
-        self.left = None
-        self.left = None
-        self.value = None
+
+class BTNode(BaseNode):
+    """Binary tree node."""
+
+    def __init__(self, key, value,
+                 left=None, right=None):
+        children = []
+
+        if left is not None:
+            children[0] = left
+
+        if right is not None:
+            children[1] = right
+
+        super(BTree).__init__(
+            key, value, children
+        )
+
+        self.__left = left
+        self.__right = right
 
     @property
     def left(self):
-        return self.left
+        return self.__left
 
     @left.setter
     def left(self, left):
-        self.left = left
+        self.__left = left
 
     @property
     def right(self):
-        return self.right
+        return self.__right
 
     @right.setter
     def right(self, right):
-        self.right = right
+        self.__right = right
+
+
+class BTree(BaseTree):
+
+    def __init__(self, data=None):
+        pass
 
     @property
-    def value(self):
-        return self.value
+    def root(self):
+        return self.__root
 
-    @value.setter
-    def value(self, left):
-        self.left = left
+    def insert(self, key, value):
+        pass
 
-
-class BTree(object):
-    pass
+    def remove(self, key):
+        pass
