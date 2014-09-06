@@ -39,15 +39,57 @@ class BaseNode(object):
     def children(self, children):
         self.__children = children
 
+    @property
+    def child_count(self):
+        """Return the number of child non-None."""
+        count = 0
+        for child in self.__children:
+            if child is not None:
+                count += 1
+
+        return count
+
+    def __getitem(self, key):
+        """Access children of node using indexing format."""
+        if not isinstance(key, int):
+            raise TypeError('Key should be an int type.')
+
+        children_length = len(self.__children)
+
+        if key < -children_length or key >= children_length:
+            raise IndexError('Key out of range.')
+
+        return self.__children[key]
+
+    def __setitem(self, key, value):
+        """Assign the child of node using indexing format."""
+        if not isinstance(key, int):
+            raise TypeError('Key should be an int type.')
+
+        children_length = len(self.__children)
+
+        if key < -children_length or key >= children_length:
+            raise IndexError('Key out of range.')
+
+        self.__children[key] = value
+
 
 class BaseTree(object):
     """The basic tree structure.
     Common operations on trees are defined here."""
-    def __init__(self):
-        self.__root = None
+    def __init__(self, root=None):
+        self.__root = root
 
     def __contains__(self, key):
         pass
 
     def __iter__(self):
         pass
+
+    @property
+    def root(self):
+        return self.__root
+
+    @root.setter
+    def root(self, node):
+        self.__root = node

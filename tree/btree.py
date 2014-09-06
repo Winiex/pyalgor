@@ -43,12 +43,14 @@ class BTree(BaseTree):
     def __init__(self, data=None):
         pass
 
-    @property
-    def root(self):
-        return self.__root
+    def __new_node(self, key, value,
+                   left=None, right=None):
+        return BTNode(key, value,
+                      left, right)
 
     def insert(self, key, value):
-        pass
+        if not self.root:
+            self.root = self.__new_node(key, value)
 
     def remove(self, key):
         pass
