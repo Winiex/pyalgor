@@ -14,7 +14,7 @@ class BTNode(BaseNode):
         if right is not None:
             children[1] = right
 
-        super(BTree).__init__(
+        super(BTNode, self).__init__(
             key, value, children
         )
 
