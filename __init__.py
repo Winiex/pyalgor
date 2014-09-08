@@ -1,7 +1,7 @@
 __all__ = [
     'BTNode',
-    'BTree'
+    'BinaryTree'
 ]
 
 
-from .bintree.btree import BTNode, BTree
+from .tree.btree import BTNode, BinaryTree

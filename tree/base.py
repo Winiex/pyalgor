@@ -49,7 +49,7 @@ class BaseNode(object):
 
         return count
 
-    def __getitem(self, key):
+    def __getitem__(self, key):
         """Access children of node using indexing format."""
         if not isinstance(key, int):
             raise TypeError('Key should be an int type.')
@@ -61,7 +61,7 @@ class BaseNode(object):
 
         return self.__children[key]
 
-    def __setitem(self, key, value):
+    def __setitem__(self, key, value):
         """Assign the child of node using indexing format."""
         if not isinstance(key, int):
             raise TypeError('Key should be an int type.')
@@ -73,12 +73,18 @@ class BaseNode(object):
 
         self.__children[key] = value
 
+    def free(self):
+        self.__key = None
+        self.__value = None
+        self.__children = None
+
 
 class BaseTree(object):
     """The basic tree structure.
     Common operations on trees are defined here."""
     def __init__(self, root=None):
         self.__root = root
+        self.__count = 0
 
     def __contains__(self, key):
         pass
@@ -93,3 +99,11 @@ class BaseTree(object):
     @root.setter
     def root(self, node):
         self.__root = node
+
+    @property
+    def count(self):
+        return self.__count
+
+    @count.setter
+    def count(self, count):
+        self.__count = count
