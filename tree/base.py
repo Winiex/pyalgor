@@ -2,28 +2,53 @@ class DFIter(object):
     """Deep first traverse iterator"""
     def __init__(self, tree):
         self.__tree = tree
+        self.__trave_stack = []
+        if tree.root is not None:
+            self.__trave_stack.append((tree.root, 0))
+
+    def __get_child_to(self, node, start):
+        child_to = start
+        # Find the next child_to index.
+        for i in xrange(start, node.children_len):
+            if node[i] is None:
+                child_to += 1
+            else:
+                break
+
+        return child_to
+
+    def _get_next(self):
+        try:
+            frame = self.__trave_stack.pop()
+        except IndexError:
+            return None
+
+        node = frame[0]
+        start = frame[1]
+
+        while True:
+            child_to = self.__get_child_to(node, start)
+
+            if child_to == node.children_len:
+                return node
+            else:
+                self.__trave_stack.append(
+                    (node, child_to + 1)
+                )
+
+                node = node[child_to]
+                start = 0
 
     def __iter__(self):
         return self
 
     def next(self):
-        trave_stack = [(self.__tree.root, 0)]
+        node = self._get_next()
 
-        for frame in trave_stack:
-            node = frame[0]
-            child_to = frame[1]
+        if node is None:
+            raise StopIteration()
 
-            if node[child_to] is not None:
-                trave_stack.append(
-                    (node[child_to], 0)
-                )
-            else:
-                if child_to == node.children_len:
-                    yield node
-                else:
-                    trave_stack.append(
-                        (node, child_to + 1)
-                    )
+        return node
 
     __next__ = next
 
@@ -33,7 +58,8 @@ class BFIter(object):
     def __init__(self, tree):
         self.__tree = tree
         self.__trave_list = []
-        self.__trave_list.append(self.__tree.root)
+        if tree.root is not None:
+            self.__trave_list.append(self.__tree.root)
 
     def __iter__(self):
         return self
