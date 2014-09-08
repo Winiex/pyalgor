@@ -1,11 +1,27 @@
 class DFIter(object):
     """Deep first traverse iterator"""
-    pass
+    def __init__(self, tree):
+        self.__tree = tree
+        self.__nodes = []
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        pass
 
 
 class BFIter(object):
     """Breadth first traverse iterator"""
-    pass
+    def __init__(self, tree):
+        self.__tree = tree
+        self.__nodes = []
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        self.__nodes.append(self.__tree.root)
 
 
 class BaseNode(object):

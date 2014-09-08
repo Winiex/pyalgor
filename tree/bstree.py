@@ -1,14 +1,14 @@
 from .base import BaseNode, BaseTree
 
 
-class BTNode(BaseNode):
+class BSTNode(BaseNode):
     """Binary tree node."""
 
     def __init__(self, key, value,
                  left=None, right=None):
         children = [left, right]
 
-        super(BTNode, self).__init__(
+        super(BSTNode, self).__init__(
             key, value, children
         )
 
@@ -32,7 +32,7 @@ class BTNode(BaseNode):
         self.__right = right
 
     def __setitem__(self, key, value):
-        super(BTNode, self).__setitem__(key, value)
+        super(BSTNode, self).__setitem__(key, value)
 
         if key == 0:
             self.left = value
@@ -44,20 +44,20 @@ class BTNode(BaseNode):
             (self.key, self.value)
 
     def free(self):
-        super(BTNode, self).free()
+        super(BSTNode, self).free()
         self.__left = None
         self.__right = None
 
 
-class BinaryTree(BaseTree):
+class BinarySearchTree(BaseTree):
 
     def __init__(self, root=None):
-        super(BinaryTree, self).__init__(root)
+        super(BinarySearchTree, self).__init__(root)
 
     def __new_node(self, key, value,
                    left=None, right=None):
-        return BTNode(key, value,
-                      left, right)
+        return BSTNode(key, value,
+                       left, right)
 
     def insert(self, key, value):
         if self.root is None:
