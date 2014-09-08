@@ -51,8 +51,8 @@ class BSTNode(BaseNode):
 
 class BinarySearchTree(BaseTree):
 
-    def __init__(self, root=None):
-        super(BinarySearchTree, self).__init__(root)
+    def __init__(self, root=None, iter_type=None):
+        super(BinarySearchTree, self).__init__(root, iter_type)
 
     def __new_node(self, key, value,
                    left=None, right=None):
