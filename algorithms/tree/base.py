@@ -81,6 +81,8 @@ class BFIter(object):
 
 class BaseNode(object):
     """Basic node."""
+    __slots__ = ('_key', '_value', '_children')
+
     def __init__(self, key, value, children=[]):
         self._key = key
         self._value = value

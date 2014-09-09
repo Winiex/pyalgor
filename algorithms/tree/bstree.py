@@ -3,6 +3,8 @@ from .base import BaseNode, BaseTree
 
 class BSTNode(BaseNode):
     """Binary search tree node."""
+    __slots__ = ('_children', '_key', '_value',
+                 '__left', '__right')
 
     def __init__(self, key, value,
                  left=None, right=None):
@@ -35,13 +37,13 @@ class BSTNode(BaseNode):
         super(BSTNode, self).__setitem__(key, value)
 
         if key == 0:
-            self.left = value
+            self.__left = value
         elif key == 1:
-            self.right = value
+            self.__right = value
 
     def __repr__(self):
         return '<BTNode: key %s, value %s>' % \
-            (self.key, self.value)
+            (self._key, self._value)
 
     def free(self):
         super(BSTNode, self).free()
@@ -49,11 +51,11 @@ class BSTNode(BaseNode):
         self.__right = None
 
 
-class BinarySearchTree(BaseTree):
-    """Binary Search Tree"""
+class BSTree(BaseTree):
+    """Binary search tree."""
 
     def __init__(self, root=None, iter_type=None):
-        super(BinarySearchTree, self).__init__(root, iter_type)
+        super(BSTree, self).__init__(root, iter_type)
 
     def __new_node(self, key, value,
                    left=None, right=None):
@@ -137,6 +139,23 @@ class BinarySearchTree(BaseTree):
 
                     if node is None:
                         raise KeyError('Key not found.')
+
+    def search(self, key):
+        """Search for the node with the specific key.
+        Return the node if key exists, otherwise return None."""
+        parent = None
+        direction = 0
+        node = self.root
+        while True:
+            if key == node.key:
+                return node
+            else:
+                direction = 0 if key <= node.key else 1
+                parent = node
+                node = parent[direction]
+
+                if node is None:
+                    return None
 
     def __contains__(self, key):
         if self._root is None:

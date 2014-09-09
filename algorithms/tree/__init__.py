@@ -1,10 +1,13 @@
 __all__ = [
     'BSTNode',
-    'BinarySearchTree',
+    'BSTree',
     'BFIter',
-    'DFIter'
+    'DFIter',
+    'AVLNode',
+    'AVLTree'
 ]
 
 
 from .base import BFIter, DFIter
-from .bstree import BSTNode, BinarySearchTree
+from .bstree import BSTNode, BSTree
+from .avltree import AVLNode, AVLTree
