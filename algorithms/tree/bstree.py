@@ -91,6 +91,10 @@ class BinarySearchTree(BaseTree):
         else:
             parent = None
             direction = 0
+
+            # Find the node with the smallest key in the right
+            # subtree of the node to be deleted, and replace the
+            # deleted node with it.
             while True:
                 if key == node.key:
                     if node.left is not None and \
@@ -126,6 +130,7 @@ class BinarySearchTree(BaseTree):
                     self._count += -1
                     break
                 else:
+                    # Find out the node to be deleted.
                     direction = 0 if key <= node.key else 1
                     parent = node
                     node = node[direction]
@@ -134,5 +139,19 @@ class BinarySearchTree(BaseTree):
                         raise KeyError('Key not found.')
 
     def __contains__(self, key):
-        #TODO
-        pass
+        if self._root is None:
+            return None
+
+        parent = None
+        node = self._root
+        direction = 0
+
+        while True:
+            if node is None:
+                return False
+            if key == node.key:
+                return True
+            else:
+                direction = 0 if key <= node.key else 1
+                parent = node
+                node = parent[direction]

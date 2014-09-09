@@ -1,7 +1,7 @@
 import unittest
 
 
-from algorithms.tree import BinarySearchTree
+from algorithms.tree import BinarySearchTree, DFIter
 
 
 class TestBinarySearchTree(unittest.TestCase):
@@ -13,8 +13,16 @@ class TestBinarySearchTree(unittest.TestCase):
         bst = BinarySearchTree()
         bst.insert(1, 2).insert(0, 1).insert(2, 3)
 
-        for node in bst:
-            print node
+    def test_dft(self):
+        bst = BinarySearchTree(iter_type=DFIter)
+        bst.insert(1, 2).insert(0, 1).insert(2, 3).insert(-1, 1)
+
+    def test_contains(self):
+        bst = BinarySearchTree()
+        bst.insert(1, 2).insert(2, 3).insert(3, 4)
+
+        self.assertTrue(1 in bst)
+        self.assertFalse(9 in bst)
 
 
 if __name__ == '__main__':
