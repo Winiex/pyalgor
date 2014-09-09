@@ -82,43 +82,43 @@ class BFIter(object):
 class BaseNode(object):
     """Basic node."""
     def __init__(self, key, value, children=[]):
-        self.__key = key
-        self.__value = value
-        self.__children = children
+        self._key = key
+        self._value = value
+        self._children = children
 
     @property
     def key(self):
-        return self.__key
+        return self._key
 
     @key.setter
     def key(self, key):
-        self.__key = key
+        self._key = key
 
     @property
     def value(self):
-        return self.__value
+        return self._value
 
     @value.setter
     def value(self, value):
-        self.__value = value
+        self._value = value
 
     @property
     def children(self):
-        return self.__children
+        return self._children
 
     @children.setter
     def children(self, children):
-        self.__children = children
+        self._children = children
 
     @property
     def children_len(self):
-        return len(self.__children)
+        return len(self._children)
 
     @property
     def child_count(self):
         """Return the number of child non-None."""
         count = 0
-        for child in self.__children:
+        for child in self._children:
             if child is not None:
                 count += 1
 
@@ -129,29 +129,29 @@ class BaseNode(object):
         if not isinstance(key, int):
             raise TypeError('Key should be an int type.')
 
-        children_length = len(self.__children)
+        children_length = len(self._children)
 
         if key < -children_length or key >= children_length:
             raise IndexError('Key out of range.')
 
-        return self.__children[key]
+        return self._children[key]
 
     def __setitem__(self, key, value):
         """Assign the child of node using indexing format."""
         if not isinstance(key, int):
             raise TypeError('Key should be an int type.')
 
-        children_length = len(self.__children)
+        children_length = len(self._children)
 
         if key < -children_length or key >= children_length:
             raise IndexError('Key out of range.')
 
-        self.__children[key] = value
+        self._children[key] = value
 
     def free(self):
-        self.__key = None
-        self.__value = None
-        self.__children = None
+        self._key = None
+        self._value = None
+        self._children = None
 
 
 class BaseTree(object):
@@ -160,32 +160,44 @@ class BaseTree(object):
     __allowed_iters = (DFIter, BFIter)
 
     def __init__(self, root=None, iter_type=None):
-        self.__root = root
-        self.__count = 0
-        self.__iter_type = iter_type
+        self._root = root
+        self._count = 0
+        self._iter_type = iter_type
 
     def __contains__(self, key):
-        pass
+        for node in self:
+            if key == node.key:
+                return True
 
     def __iter__(self):
-        iter_type = self.__iter_type
+        if self._iter_type is None:
+            self._iter_type = BFIter
+
+        iter_type = self._iter_type
         if iter_type not in self.__allowed_iters:
-            raise TypeError('iter_type %r error.' % self.__iter_type)
+            raise TypeError('iter_type %r error.' % self._iter_type)
 
         return iter_type(self)
 
     @property
     def root(self):
-        return self.__root
-
-    @root.setter
-    def root(self, node):
-        self.__root = node
+        return self._root
 
     @property
     def count(self):
-        return self.__count
+        return self._count
 
-    @count.setter
-    def count(self, count):
-        self.__count = count
+    def __and__(self, other):
+        pass
+
+    def __or__(self, other):
+        pass
+
+    def __add__(self, other):
+        pass
+
+    def __sub__(self, other):
+        pass
+
+    def __xor__(self, other):
+        pass

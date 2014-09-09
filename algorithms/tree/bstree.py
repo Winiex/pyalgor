@@ -2,7 +2,7 @@ from .base import BaseNode, BaseTree
 
 
 class BSTNode(BaseNode):
-    """Binary tree node."""
+    """Binary search tree node."""
 
     def __init__(self, key, value,
                  left=None, right=None):
@@ -50,6 +50,7 @@ class BSTNode(BaseNode):
 
 
 class BinarySearchTree(BaseTree):
+    """Binary Search Tree"""
 
     def __init__(self, root=None, iter_type=None):
         super(BinarySearchTree, self).__init__(root, iter_type)
@@ -60,12 +61,12 @@ class BinarySearchTree(BaseTree):
                        left, right)
 
     def insert(self, key, value):
-        if self.root is None:
-            self.root = self.__new_node(key, value)
+        if self._root is None:
+            self._root = self.__new_node(key, value)
         else:
             parent = None
             direction = 0  # 0 means left, 1 means right.
-            node = self.root
+            node = self._root
             while True:
                 if node is None:
                     parent[direction] = self.__new_node(key, value)
@@ -78,12 +79,12 @@ class BinarySearchTree(BaseTree):
                     direction = 0 if key <= node.key else 1
                     node = node[direction]
 
-            self.count += 1
+        self._count += 1
 
         return self
 
     def remove(self, key):
-        node = self.root
+        node = self._root
 
         if node is None:
             raise KeyError('Tree is empty.')
@@ -116,13 +117,13 @@ class BinarySearchTree(BaseTree):
                         down_direct = 1 if node.left is None else 0
 
                         if parent is None:
-                            self.root = node[down_direct]
+                            self._root = node[down_direct]
                         else:
                             parent[direction] = node[down_direct]
 
                         node.free()
 
-                    self.count += -1
+                    self._count += -1
                     break
                 else:
                     direction = 0 if key <= node.key else 1
@@ -131,3 +132,7 @@ class BinarySearchTree(BaseTree):
 
                     if node is None:
                         raise KeyError('Key not found.')
+
+    def __contains__(self, key):
+        #TODO
+        pass
