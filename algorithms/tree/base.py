@@ -169,7 +169,7 @@ class BaseTree(object):
 
     def __iter__(self):
         if self._iter_type is None:
-            self._iter_type = BFIter
+            self._iter_type = DFIter
 
         iter_type = self._iter_type
         if iter_type not in self.__allowed_iters:
@@ -199,3 +199,33 @@ class BaseTree(object):
 
     def __xor__(self, other):
         pass
+
+    def min_node(self):
+        if self._root is None:
+            raise ValueError('Tree is empty.')
+
+        min_node = self._root
+
+        for node in self:
+            if min_node.key > node.key:
+                min_node = node
+
+        return min_node
+
+    def __min__(self):
+        return self.min_node()
+
+    def max_node(self):
+        if self._root is None:
+            raise ValueError('Tree is empty.')
+
+        max_node = self._root
+
+        for node in self:
+            if max_node.key < node.key:
+                max_node = node
+
+        return max_node
+
+    def __max__(self):
+        return self.max_node()

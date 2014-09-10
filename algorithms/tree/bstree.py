@@ -174,3 +174,33 @@ class BSTree(BaseTree):
                 direction = 0 if key <= node.key else 1
                 parent = node
                 node = parent[direction]
+
+    def __min__(self):
+        return self.min_node()
+
+    def min_node(self):
+        if self._root is None:
+            raise ValueError('BSTree is empty.')
+
+        min_node = self._root
+
+        while True:
+            if min_node[0] is None:
+                return min_node
+            else:
+                min_node = min_node[0]
+
+    def __max__(self):
+        return self.max_node()
+
+    def max_node(self):
+        if self._root is None:
+            raise ValueError('BSTree is empty.')
+
+        max_node = self._root
+
+        while True:
+            if max_node[1] is None:
+                return max_node
+            else:
+                max_node = max_node[1]
