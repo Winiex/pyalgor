@@ -47,7 +47,8 @@ class TestBSTree(unittest.TestCase):
     def test_in_order_iter(self):
         print 'test_in_order_iter'
         bst = BSTree(iter_type=InOrderIter)
-        bst.insert(1, 2).insert(0, 1)
+        bst.insert(1, 2).insert(0, 1).insert(2, 3).insert(-1, 1) \
+            .insert(0.5, 1)
 
         for node in bst:
             print node
