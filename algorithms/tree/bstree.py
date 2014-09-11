@@ -2,7 +2,9 @@ from .base import BaseNode, BaseTree, DFIter, BFIter
 
 
 class PreOrderIter(DFIter):
-    """Pre-order iterator."""
+    """
+    Pre-order iterator.
+    """
 
     def __init__(self, bstree):
         super(PreOrderIter, self).__init__(bstree)
@@ -21,7 +23,9 @@ class PreOrderIter(DFIter):
 
 
 class InOrderIter(DFIter):
-    """In-order iterator."""
+    """
+    In-order iterator.
+    """
 
     def __init__(self, bstree):
         super(InOrderIter, self).__init__(bstree)
@@ -49,7 +53,9 @@ class InOrderIter(DFIter):
 
 
 class PostOrderIter(DFIter):
-    """Post-order iterator."""
+    """
+    Post-order iterator.
+    """
 
     def __init__(self, bstree):
         super(PostOrderIter, self).__init__(bstree)
@@ -80,7 +86,10 @@ class PostOrderIter(DFIter):
 
 
 class BSTNode(BaseNode):
-    """Binary search tree node."""
+    """
+    Binary search tree node.
+    """
+
     __slots__ = ('_children', '_key', '_value',
                  '__left', '__right')
 
@@ -130,7 +139,9 @@ class BSTNode(BaseNode):
 
 
 class BSTree(BaseTree):
-    """Binary search tree."""
+    """
+    Binary search tree.
+    """
 
     _allowed_iters = (DFIter, BFIter, PreOrderIter,
                       InOrderIter, PostOrderIter)
@@ -138,21 +149,29 @@ class BSTree(BaseTree):
     def __init__(self, root=None, iter_type=None):
         super(BSTree, self).__init__(root, iter_type)
 
-    def __new_node(self, key, value,
+    def __new_node(self, key, value, height,
                    left=None, right=None):
         return BSTNode(key, value,
                        left, right)
 
     def insert(self, key, value):
         if self._root is None:
-            self._root = self.__new_node(key, value)
+            self._root = self.__new_node(key, value, 1)
+            self._height = 1
         else:
             parent = None
             direction = 0  # 0 means left, 1 means right.
             node = self._root
             while True:
                 if node is None:
-                    parent[direction] = self.__new_node(key, value)
+                    parent[direction] = self.__new_node(
+                        key, value, parent.height + 1
+                    )
+
+                    if self.height < parent.height + 1:
+                        # Update the tree's height
+                        self.height = parent.height + 1
+
                     break
                 if key == node.key:
                     node.value = value
@@ -222,8 +241,10 @@ class BSTree(BaseTree):
                         raise KeyError('Key not found.')
 
     def search(self, key):
-        """Search for the node with the specific key.
-        Return the node if key exists, otherwise return None."""
+        """
+        Search for the node with the specific key.
+        Return the node if key exists, otherwise return None.
+        """
         parent = None
         direction = 0
         node = self.root
