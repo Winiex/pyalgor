@@ -1,4 +1,4 @@
-from .base import BaseNode, BaseTree, DFIter
+from .base import BaseNode, BaseTree, DFIter, BFIter
 
 
 class PreOrderIter(DFIter):
@@ -10,7 +10,7 @@ class PreOrderIter(DFIter):
     def _get_next(self):
         frame = self._pop_stack()
 
-        if frame is not None:
+        if frame is None:
             return None
 
         node = frame[0]
@@ -29,7 +29,7 @@ class InOrderIter(DFIter):
     def _get_next(self):
         frame = self._pop_stack()
 
-        if frame is not None:
+        if frame is None:
             return None
 
         node = frame[0]
@@ -57,7 +57,7 @@ class PostOrderIter(DFIter):
     def _get_next(self):
         frame = self._pop_stack()
 
-        if frame is not None:
+        if frame is None:
             return None
 
         node = frame[0]
@@ -67,10 +67,12 @@ class PostOrderIter(DFIter):
             return node
 
         while True:
-            if node[0] is not None:
+            if child_to == 0 and node[0] is not None:
+                # When left child to iterate does exists
                 self._push_stack(node, 1)
                 node = node[0]
-            elif node[1] is not None:
+            elif child_to == 1 and node[1] is not None:
+                # When right child to iterate does exists
                 self._push_stack(node, 2)
                 node = node[1]
             else:
@@ -129,6 +131,9 @@ class BSTNode(BaseNode):
 
 class BSTree(BaseTree):
     """Binary search tree."""
+
+    _allowed_iters = (DFIter, BFIter, PreOrderIter,
+                      InOrderIter, PostOrderIter)
 
     def __init__(self, root=None, iter_type=None):
         super(BSTree, self).__init__(root, iter_type)

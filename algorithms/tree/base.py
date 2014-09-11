@@ -27,10 +27,7 @@ class DFIter(object):
         if node is None:
             return
 
-        if node[child_to] is not None:
-            self._trave_stack.append(node[child_to])
-        else:
-            return
+        self._trave_stack.append((node, child_to))
 
     def _pop_stack(self):
         try:
@@ -176,7 +173,7 @@ class BaseNode(object):
 class BaseTree(object):
     """The basic tree structure.
     Common operations on trees are defined here."""
-    __allowed_iters = (DFIter, BFIter)
+    _allowed_iters = (DFIter, BFIter)
 
     def __init__(self, root=None, iter_type=None):
         self._root = root
@@ -193,7 +190,7 @@ class BaseTree(object):
             self._iter_type = DFIter
 
         iter_type = self._iter_type
-        if iter_type not in self.__allowed_iters:
+        if iter_type not in self._allowed_iters:
             raise TypeError('iter_type %r error.' % self._iter_type)
 
         return iter_type(self)
