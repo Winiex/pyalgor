@@ -4,10 +4,10 @@ class DFIter(object):
 
     def __init__(self, tree):
         self.__tree = tree
-        self._trave_stack = []
+        self._iter_stack = []
 
         if tree.root is not None:
-            self._trave_stack.append((tree.root, 0))
+            self._iter_stack.append((tree.root, 0))
 
     def _get_child_to(self, node, start):
         """Find the next child_to index.
@@ -27,11 +27,11 @@ class DFIter(object):
         if node is None:
             return
 
-        self._trave_stack.append((node, child_to))
+        self._iter_stack.append((node, child_to))
 
     def _pop_stack(self):
         try:
-            frame = self._trave_stack.pop()
+            frame = self._iter_stack.pop()
         except IndexError:
             return None
 
