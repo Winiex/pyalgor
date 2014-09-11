@@ -1,4 +1,80 @@
-from .base import BaseNode, BaseTree
+from .base import BaseNode, BaseTree, DFIter
+
+
+class PreOrderIter(DFIter):
+    """Pre-order iterator."""
+
+    def __init__(self, bstree):
+        super(PreOrderIter, self).__init__(bstree)
+
+    def _get_next(self):
+        frame = self._pop_stack()
+
+        if frame is not None:
+            return None
+
+        node = frame[0]
+
+        self._push_stack(node[1], 0)
+        self._push_stack(node[0], 0)
+        return node
+
+
+class InOrderIter(DFIter):
+    """In-order iterator."""
+
+    def __init__(self, bstree):
+        super(InOrderIter, self).__init__(bstree)
+
+    def _get_next(self):
+        frame = self._pop_stack()
+
+        if frame is not None:
+            return None
+
+        node = frame[0]
+        child_to = frame[1]
+
+        if child_to == 1:
+            self._push_stack(node[1], 0)
+            return node
+
+        while True:
+            if node[0] is not None:
+                self._push_stack(node, 1)
+                node = node[0]
+            else:
+                self._push_stack(node[1], 0)
+                return node
+
+
+class PostOrderIter(DFIter):
+    """Post-order iterator."""
+
+    def __init__(self, bstree):
+        super(PostOrderIter, self).__init__(bstree)
+
+    def _get_next(self):
+        frame = self._pop_stack()
+
+        if frame is not None:
+            return None
+
+        node = frame[0]
+        child_to = frame[1]
+
+        if child_to == 2:
+            return node
+
+        while True:
+            if node[0] is not None:
+                self._push_stack(node, 1)
+                node = node[0]
+            elif node[1] is not None:
+                self._push_stack(node, 2)
+                node = node[1]
+            else:
+                return node
 
 
 class BSTNode(BaseNode):

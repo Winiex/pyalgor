@@ -1,14 +1,20 @@
 class DFIter(object):
-    """Deep first traverse iterator"""
+    """Deep first traverse iterator.
+    In post-order."""
+
     def __init__(self, tree):
         self.__tree = tree
-        self.__trave_stack = []
-        if tree.root is not None:
-            self.__trave_stack.append((tree.root, 0))
+        self._trave_stack = []
 
-    def __get_child_to(self, node, start):
+        if tree.root is not None:
+            self._trave_stack.append((tree.root, 0))
+
+    def _get_child_to(self, node, start):
+        """Find the next child_to index.
+        The child_to index is the index of the
+        node's child to be visited next."""
+
         child_to = start
-        # Find the next child_to index.
         for i in xrange(start, node.children_len):
             if node[i] is None:
                 child_to += 1
@@ -17,24 +23,39 @@ class DFIter(object):
 
         return child_to
 
-    def _get_next(self):
+    def _push_stack(self, node, child_to):
+        if node is None:
+            return
+
+        if node[child_to] is not None:
+            self._trave_stack.append(node[child_to])
+        else:
+            return
+
+    def _pop_stack(self):
         try:
-            frame = self.__trave_stack.pop()
+            frame = self._trave_stack.pop()
         except IndexError:
+            return None
+
+        return frame
+
+    def _get_next(self):
+        frame = self._pop_stack()
+
+        if frame is None:
             return None
 
         node = frame[0]
         start = frame[1]
 
         while True:
-            child_to = self.__get_child_to(node, start)
+            child_to = self._get_child_to(node, start)
 
             if child_to == node.children_len:
                 return node
             else:
-                self.__trave_stack.append(
-                    (node, child_to + 1)
-                )
+                self._push_stack(node, child_to + 1)
 
                 node = node[child_to]
                 start = 0
@@ -57,22 +78,22 @@ class BFIter(object):
     """Breadth first traverse iterator"""
     def __init__(self, tree):
         self.__tree = tree
-        self.__trave_list = []
+        self._trave_list = []
         if tree.root is not None:
-            self.__trave_list.append(self.__tree.root)
+            self._trave_list.append(self.__tree.root)
 
     def __iter__(self):
         return self
 
     def next(self):
         try:
-            node = self.__trave_list.pop(0)
+            node = self._trave_list.pop(0)
         except IndexError:
             raise StopIteration()
 
         for child in node.children:
             if child is not None:
-                self.__trave_list.append(child)
+                self._trave_list.append(child)
 
         return node
 
