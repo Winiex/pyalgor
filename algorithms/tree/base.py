@@ -135,11 +135,14 @@ class BaseNode(object):
     height - The height of the node. Root node's height
     is 1.
     """
-    __slots__ = ('_key', '_value', '_height', '_children')
+    __slots__ = ('_key', '_value', '_height',
+                 '_parent', '_children')
 
-    def __init__(self, key, value, height, children=[]):
+    def __init__(self, key, value, height,
+                 parent, children=[]):
         self._key = key
         self._value = value
+        self._parent = parent
         self._height = height
         self._children = children
 
@@ -166,6 +169,14 @@ class BaseNode(object):
     @height.setter
     def height(self, height):
         self._height = height
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        self._parent = parent
 
     @property
     def children(self):
@@ -219,6 +230,8 @@ class BaseNode(object):
         self._key = None
         self._value = None
         self._children = None
+        self._height = 0
+        self._parent = None
 
 
 class BaseTree(object):

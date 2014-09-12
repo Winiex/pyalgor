@@ -127,14 +127,14 @@ class BSTNode(BaseNode):
     """
 
     __slots__ = ('_key', '_value', '_children',
-                 '_height', '__left', '__right')
+                 '_height', '_parent', '__left', '__right')
 
     def __init__(self, key, value, height,
-                 left=None, right=None):
+                 parent, left=None, right=None):
         children = [left, right]
 
         super(BSTNode, self).__init__(
-            key, value, height, children
+            key, value, height, parent, children
         )
 
         self.__left = left
@@ -185,14 +185,14 @@ class BSTree(BaseTree):
     def __init__(self, root=None, iter_type=None):
         super(BSTree, self).__init__(root, iter_type)
 
-    def __new_node(self, key, value, height,
+    def __new_node(self, key, value, height, parent,
                    left=None, right=None):
-        return BSTNode(key, value, height,
+        return BSTNode(key, value, height, parent,
                        left, right)
 
     def insert(self, key, value):
         if self._root is None:
-            self._root = self.__new_node(key, value, 1)
+            self._root = self.__new_node(key, value, 1, None)
             self._height = 1
         else:
             parent = None
@@ -201,7 +201,7 @@ class BSTree(BaseTree):
             while True:
                 if node is None:
                     parent[direction] = self.__new_node(
-                        key, value, parent.height + 1
+                        key, value, parent.height + 1, parent
                     )
 
                     if self.height < parent.height + 1:
@@ -266,8 +266,9 @@ class BSTree(BaseTree):
                         else:
                             parent[direction] = node[down_direct]
 
-                        # Update the replacement node's height
+                        # Update the replacement node's height and parent
                         node[down_direct].height = node.height
+                        node[down_direct].parent = parent
 
                         node.free()
 
@@ -300,6 +301,12 @@ class BSTree(BaseTree):
 
                 if node is None:
                     raise KeyError('key %s doesn\'t exist.' % key)
+
+    def successor(self, key):
+        pass
+
+    def predecessor(self, key):
+        pass
 
     def __contains__(self, key):
         if self._root is None:
@@ -348,3 +355,41 @@ class BSTree(BaseTree):
                 return max_node
             else:
                 max_node = max_node[1]
+
+
+def subtree_min(root):
+    """
+    Find the node with minimium key in a BSTree subtree.
+
+    root - the subtree's root node.
+    """
+    if root is None:
+        raise ValueError('root node should not be None.')
+
+    node = root
+
+    while True:
+        if node[0] is not None:
+            node = node[0]
+            continue
+
+    return node
+
+
+def subtree_max(root):
+    """
+    Find the node with maximium key in a BSTree subtree.
+
+    root - the subtree's root node.
+    """
+    if root is None:
+        raise ValueError('root node should not be None.')
+
+    node = root
+
+    while True:
+        if node[1] is not None:
+            node = node[1]
+            continue
+
+    return node
