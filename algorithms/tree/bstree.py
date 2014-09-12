@@ -1,6 +1,54 @@
 from .base import BaseNode, BaseTree, DFIter, BFIter
 
 
+def subtree_min(root):
+    """
+    Find the node with minimium key in a BSTree subtree.
+
+    root - the subtree's root node.
+    """
+    if root is None:
+        raise ValueError('root node should not be None.')
+
+    if root.left is None:
+        return root
+
+    node = root
+
+    while True:
+        if node[0] is not None:
+            node = node[0]
+            continue
+        else:
+            break
+
+    return node
+
+
+def subtree_max(root):
+    """
+    Find the node with maximium key in a BSTree subtree.
+
+    root - the subtree's root node.
+    """
+    if root is None:
+        raise ValueError('root node should not be None.')
+
+    if root.right is None:
+        return root
+
+    node = root
+
+    while True:
+        if node[1] is not None:
+            node = node[1]
+            continue
+        else:
+            break
+
+    return node
+
+
 class PreOrderIter(DFIter):
     """
     Pre-order iterator.
@@ -303,10 +351,32 @@ class BSTree(BaseTree):
                     raise KeyError('key %s doesn\'t exist.' % key)
 
     def successor(self, key):
-        pass
+        node = self.search(key)
+
+        if node.right is not None:
+            return subtree_min(node.right)
+
+        parent = node.parent
+
+        while parent is not None and node is parent.right:
+            node = parent
+            parent = node.parent
+
+        return parent
 
     def predecessor(self, key):
-        pass
+        node = self.search(key)
+
+        if node.left is not None:
+            return subtree_max(node.left)
+
+        parent = node.parent
+
+        while parent is not None and node is parent.left:
+            node = parent
+            parent = node.parent
+
+        return parent
 
     def __contains__(self, key):
         if self._root is None:
@@ -355,41 +425,3 @@ class BSTree(BaseTree):
                 return max_node
             else:
                 max_node = max_node[1]
-
-
-def subtree_min(root):
-    """
-    Find the node with minimium key in a BSTree subtree.
-
-    root - the subtree's root node.
-    """
-    if root is None:
-        raise ValueError('root node should not be None.')
-
-    node = root
-
-    while True:
-        if node[0] is not None:
-            node = node[0]
-            continue
-
-    return node
-
-
-def subtree_max(root):
-    """
-    Find the node with maximium key in a BSTree subtree.
-
-    root - the subtree's root node.
-    """
-    if root is None:
-        raise ValueError('root node should not be None.')
-
-    node = root
-
-    while True:
-        if node[1] is not None:
-            node = node[1]
-            continue
-
-    return node
