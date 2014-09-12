@@ -45,10 +45,9 @@ class TestBSTree(unittest.TestCase):
             print node
 
     def test_in_order_iter(self):
-        print 'test_in_order_iter'
         bst = BSTree(iter_type=InOrderIter)
-        bst.insert(1, 2).insert(0, 1).insert(2, 3).insert(-1, 1) \
-            .insert(0.5, 1)
+
+        bst.insert(1, 2).insert(0, 2).insert(2, 1).insert(3, 1)
 
         for node in bst:
             print node
@@ -56,8 +55,7 @@ class TestBSTree(unittest.TestCase):
     def test_post_order_iter(self):
         print 'test_post_order_iter'
         bst = BSTree(iter_type=PostOrderIter)
-        bst.insert(1, 2).insert(0, 1).insert(2, 3).insert(-1, 1) \
-            .insert(0.5, 1)
+        bst.insert(1, 2).insert(0, 2).insert(2, 1).insert(3, 1)
 
         for node in bst:
             print node

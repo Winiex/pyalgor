@@ -54,6 +54,12 @@ class DFIter(object):
 
         return frame
 
+    def _stack_top(self):
+        if self._iter_stack:
+            return self._iter_stack[-1]
+        else:
+            return None
+
     def _get_next(self):
         frame = self._pop_stack()
 
@@ -171,7 +177,9 @@ class BaseNode(object):
 
     @property
     def child_count(self):
-        """Return the number of child non-None."""
+        """
+        Return the number of child non-None.
+        """
         count = 0
         for child in self._children:
             if child is not None:
@@ -180,7 +188,9 @@ class BaseNode(object):
         return count
 
     def __getitem__(self, key):
-        """Access children of node using indexing format."""
+        """
+        Access children of node using indexing format.
+        """
         if not isinstance(key, int):
             raise TypeError('Key should be an int type.')
 
@@ -192,7 +202,9 @@ class BaseNode(object):
         return self._children[key]
 
     def __setitem__(self, key, value):
-        """Assign the child of node using indexing format."""
+        """
+        Assign the child of node using indexing format.
+        """
         if not isinstance(key, int):
             raise TypeError('Key should be an int type.')
 
@@ -232,6 +244,16 @@ class BaseTree(object):
     height - The tree's height. When there is only
     root node exists in a tree, the tree's height
     is 1.
+
+    height_rebuid - This is a private instance
+    variable used to help deciding whether to rebuild
+    the height of the tree. This is because when you
+    remove a node from your tree, it's hard and not
+    efficient to figure out the height of the tree.
+    And immediatly rebuild the height right after the
+    node removing is not pragmatic. So we should only
+    rebuild the height when it's needed. It's kind of
+    like lazy evaluation.
     """
     _allowed_iters = (DFIter, BFIter)
 
@@ -240,6 +262,7 @@ class BaseTree(object):
         self._count = 0
         self._height = 0
         self._iter_type = iter_type
+        self._height_rebuild = False
 
     def __contains__(self, key):
         for node in self:
@@ -266,7 +289,25 @@ class BaseTree(object):
 
     @property
     def height(self):
+        if self._height_rebuild:
+            self._height = self._rebuild_height()
+
         return self._height
+
+    def _rebuild_height(self):
+        """
+        Rebuild the height of the tree.
+        """
+        if self.root is None:
+            return 0
+
+        height = self.root.height
+
+        for node in self:
+            if height < node.height:
+                height = node.height
+
+        return height
 
     def __and__(self, other):
         pass

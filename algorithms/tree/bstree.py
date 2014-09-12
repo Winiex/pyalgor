@@ -57,32 +57,68 @@ class PostOrderIter(DFIter):
     Post-order iterator.
     """
 
+    # The CONTINUE object is used to
+    # decide whether we should invoke
+    # the "_get_next" method again in the
+    # "next" method until we get the node
+    # returned next.
+    CONTINUE = object()
+
     def __init__(self, bstree):
         super(PostOrderIter, self).__init__(bstree)
+        self.__previous = None
+        self.__current = None
 
     def _get_next(self):
-        frame = self._pop_stack()
+        frame = self._stack_top()
 
         if frame is None:
             return None
 
-        node = frame[0]
-        child_to = frame[1]
+        result = self.CONTINUE
 
-        if child_to == 2:
-            return node
+        # The child_to is not used in procedure followed,
+        # so we don't access it, and just store 0 in the
+        # frame.
+        self.__current = frame[0]
 
-        while True:
-            if child_to == 0 and node[0] is not None:
-                # When left child to iterate does exists
-                self._push_stack(node, 1)
-                node = node[0]
-            elif child_to == 1 and node[1] is not None:
-                # When right child to iterate does exists
-                self._push_stack(node, 2)
-                node = node[1]
+        if self.__previous is None or \
+           self.__previous.left is self.__current or \
+           self.__previous.right is self.__current:
+            if self.__current.left is not None:
+                self._push_stack(self.__current.left, 0)
+            elif self.__current.right is not None:
+                self._push_stack(self.__current.right, 0)
             else:
-                return node
+                self._pop_stack()
+                result = self.__current
+        elif self.__current.left is self.__previous:
+            if self.__current.right is not None:
+                self._push_stack(self.__current.right, 0)
+            else:
+                self._pop_stack()
+                result = self.__current
+        elif self.__current.right is self.__previous:
+            self._pop_stack()
+            result = self.__current
+
+        self.__previous = self.__current
+
+        return result
+
+    def next(self):
+        while True:
+            result = self._get_next()
+
+            if result is self.CONTINUE:
+                # When it returns CONTINUE object,
+                # we should invoke _get_next method
+                # again.
+                continue
+            elif result is None:
+                raise StopIteration()
+            else:
+                return result
 
 
 class BSTNode(BaseNode):
@@ -90,15 +126,15 @@ class BSTNode(BaseNode):
     Binary search tree node.
     """
 
-    __slots__ = ('_children', '_key', '_value',
-                 '__left', '__right')
+    __slots__ = ('_key', '_value', '_children',
+                 '_height', '__left', '__right')
 
-    def __init__(self, key, value,
+    def __init__(self, key, value, height,
                  left=None, right=None):
         children = [left, right]
 
         super(BSTNode, self).__init__(
-            key, value, children
+            key, value, height, children
         )
 
         self.__left = left
@@ -151,7 +187,7 @@ class BSTree(BaseTree):
 
     def __new_node(self, key, value, height,
                    left=None, right=None):
-        return BSTNode(key, value,
+        return BSTNode(key, value, height,
                        left, right)
 
     def insert(self, key, value):
@@ -170,7 +206,7 @@ class BSTree(BaseTree):
 
                     if self.height < parent.height + 1:
                         # Update the tree's height
-                        self.height = parent.height + 1
+                        self._height = parent.height + 1
 
                     break
                 if key == node.key:
@@ -199,6 +235,8 @@ class BSTree(BaseTree):
             # deleted node with it.
             while True:
                 if key == node.key:
+                    self._height_rebuild = True
+
                     if node.left is not None and \
                        node.right is not None:
                         rep_parent = node
@@ -215,6 +253,7 @@ class BSTree(BaseTree):
                         if rep_parent != node:
                             rep_parent.left = None
 
+                        # Height remains the node's value
                         node.key = replacement.key
                         node.value = replacement.value
 
@@ -226,6 +265,9 @@ class BSTree(BaseTree):
                             self._root = node[down_direct]
                         else:
                             parent[direction] = node[down_direct]
+
+                        # Update the replacement node's height
+                        node[down_direct].height = node.height
 
                         node.free()
 
@@ -243,7 +285,7 @@ class BSTree(BaseTree):
     def search(self, key):
         """
         Search for the node with the specific key.
-        Return the node if key exists, otherwise return None.
+        Raise KeyError if key exists, otherwise return None.
         """
         parent = None
         direction = 0
@@ -257,7 +299,7 @@ class BSTree(BaseTree):
                 node = parent[direction]
 
                 if node is None:
-                    return None
+                    raise KeyError('key %s doesn\'t exist.' % key)
 
     def __contains__(self, key):
         if self._root is None:
