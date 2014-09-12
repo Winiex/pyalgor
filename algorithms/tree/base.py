@@ -307,6 +307,14 @@ class BaseTree(object):
 
         return self._height
 
+    @property
+    def iter_type(self):
+        return self._iter_type
+
+    @iter_type.setter
+    def iter_type(self, iter_type):
+        self._iter_type = iter_type
+
     def _rebuild_height(self):
         """
         Rebuild the height of the tree.
