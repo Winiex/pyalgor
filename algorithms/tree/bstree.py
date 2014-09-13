@@ -403,13 +403,7 @@ class BSTree(BaseTree):
         if self._root is None:
             raise ValueError('BSTree is empty.')
 
-        min_node = self._root
-
-        while True:
-            if min_node[0] is None:
-                return min_node
-            else:
-                min_node = min_node[0]
+        return subtree_min(self._root)
 
     def __max__(self):
         return self.max_node()
@@ -418,10 +412,4 @@ class BSTree(BaseTree):
         if self._root is None:
             raise ValueError('BSTree is empty.')
 
-        max_node = self._root
-
-        while True:
-            if max_node[1] is None:
-                return max_node
-            else:
-                max_node = max_node[1]
+        return subtree_max(self._root)
