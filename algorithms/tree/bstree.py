@@ -195,6 +195,7 @@ class BSTNode(BaseNode):
     @left.setter
     def left(self, left):
         self.__left = left
+        self._children[0] = left
 
     @property
     def right(self):
@@ -203,6 +204,7 @@ class BSTNode(BaseNode):
     @right.setter
     def right(self, right):
         self.__right = right
+        self._children[1] = right
 
     def __setitem__(self, key, value):
         super(BSTNode, self).__setitem__(key, value)
@@ -283,7 +285,7 @@ class BSTree(BaseTree):
             # deleted node with it.
             while True:
                 if key == node.key:
-                    self._height_rebuild = True
+                    self._height_rebuild_needed = True
 
                     if node.left is not None and \
                        node.right is not None:
@@ -336,6 +338,9 @@ class BSTree(BaseTree):
         Search for the node with the specific key.
         Raise KeyError if key exists, otherwise return None.
         """
+        if self._root is None:
+            raise ValueError('Tree is empty.')
+
         parent = None
         direction = 0
         node = self.root
@@ -413,3 +418,73 @@ class BSTree(BaseTree):
             raise ValueError('BSTree is empty.')
 
         return subtree_max(self._root)
+
+    def _left_rotate(self, node):
+        if node.right is None:
+            raise ValueError('node\'s right child shouldn\'t be None.')
+
+        right_child = node.right
+        parent = node.parent
+
+        right_child.parent = node.parent
+        right_child.height = node.height
+
+        if not self._is_root(node):
+            if node is parent.left:
+                parent.left = right_child
+            elif node is parent.right:
+                parent.right = right_child
+        else:
+            self._root = right_child
+
+        node.right = right_child.left
+
+        if right_child.left is not None:
+            right_child.left.parent = node
+
+        right_child.left = node
+
+        node.parent = right_child
+
+        self._refresh_height(right_child)
+        self._height_rebuild_needed = True
+
+    def left_rotate(self, key):
+        node = self.search(key)
+
+        self._left_rotate(node)
+
+    def _right_rotate(self, node):
+        if node.right is None:
+            raise ValueError('node\'s left child shouldn\'t be None.')
+
+        left_child = node.left
+        parent = node.parent
+
+        left_child.parent = node.parent
+        left_child.height = node.height
+
+        if not self._is_root(node):
+            if parent.left is node:
+                parent.left = left_child
+            elif parent.right is node:
+                parent.right = left_child
+        else:
+            self._root = left_child
+
+        node.left = left_child.right
+
+        if left_child.right is not None:
+            left_child.right.parent = node
+
+        left_child.right = node
+
+        node.parent = left_child
+
+        self._refresh_height(left_child)
+        self._height_rebuild_needed = True
+
+    def right_rotate(self, key):
+        node = self.search(key)
+
+        self._right_rotate(node)

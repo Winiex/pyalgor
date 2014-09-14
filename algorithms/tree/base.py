@@ -275,7 +275,7 @@ class BaseTree(object):
         self._count = 0
         self._height = 0
         self._iter_type = iter_type
-        self._height_rebuild = False
+        self._height_rebuild_needed = False
 
     def __contains__(self, key):
         for node in self:
@@ -292,6 +292,12 @@ class BaseTree(object):
 
         return iter_type(self)
 
+    def _is_root(self, node):
+        if node.parent is None:
+            return True
+        else:
+            return False
+
     @property
     def root(self):
         return self._root
@@ -302,7 +308,7 @@ class BaseTree(object):
 
     @property
     def height(self):
-        if self._height_rebuild:
+        if self._height_rebuild_needed:
             self._height = self._rebuild_height()
 
         return self._height
@@ -374,3 +380,20 @@ class BaseTree(object):
 
     def __max__(self):
         return self.max_node()
+
+    def _refresh_height(self, root_node):
+        """
+        Refresh the height of all the nodes of a subtree.
+        """
+        nodes_list = [root_node]
+
+        while True:
+            try:
+                node = nodes_list.pop(0)
+            except IndexError:
+                break
+
+            for child in node.children:
+                if child is not None:
+                    child.height = node.height + 1
+                    nodes_list.append(child)

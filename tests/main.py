@@ -36,13 +36,12 @@ class TestBSTree(unittest.TestCase):
         self.assertFalse(1 in bst)
 
     def test_pre_order_iter(self):
-        print 'test_pre_order_iter'
         bst = BSTree(iter_type=PreOrderIter)
         bst.insert(1, 2).insert(0, 1).insert(2, 3).insert(-1, 1) \
             .insert(0.5, 1)
 
         for node in bst:
-            print node
+            pass
 
     def test_in_order_iter(self):
         bst = BSTree(iter_type=InOrderIter)
@@ -50,15 +49,28 @@ class TestBSTree(unittest.TestCase):
         bst.insert(1, 2).insert(0, 2).insert(2, 1).insert(3, 1)
 
         for node in bst:
-            print node
+            pass
 
     def test_post_order_iter(self):
-        print 'test_post_order_iter'
         bst = BSTree(iter_type=PostOrderIter)
         bst.insert(1, 2).insert(0, 2).insert(2, 1).insert(3, 1)
 
         for node in bst:
-            print node
+            pass
+
+    def test_left_rotate(self):
+        print 'test_left_rotate'
+        bst = BSTree(iter_type=PostOrderIter)
+        bst.insert(0, 1).insert(1, 1) \
+            .insert(2, 1).insert(3, 1) \
+            .insert(4, 1).insert(0.5, 1) \
+            .insert(1.5, 1).insert(2.5, 1) \
+            .insert(3.5, 1)
+
+        bst.left_rotate(2)
+
+        for node in bst:
+            print node, node.height
 
 
 if __name__ == '__main__':
