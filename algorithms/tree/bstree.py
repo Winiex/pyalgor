@@ -248,14 +248,23 @@ class BSTree(BaseTree):
             parent = None
             direction = 0  # 0 means left, 1 means right.
             node = self._root
+
             while True:
                 if node is None:
                     parent[direction] = self.__new_node(
                         key, value, parent.height + 1, parent
                     )
 
+                    # When you insert a node right after your
+                    # removing a node, the height of the tree
+                    # needs rebuilding.
+                    if self._height_rebuild_needed:
+                        self._rebuild_height()
+
                     if self.height < parent.height + 1:
-                        # Update the tree's height
+                        # We should update the tree's height
+                        # when the node newly inserted has the
+                        # maximium height in the tree.
                         self._height = parent.height + 1
 
                     break
@@ -420,6 +429,16 @@ class BSTree(BaseTree):
         return subtree_max(self._root)
 
     def _left_rotate(self, node):
+        """
+             |                     |
+            (y)                   (x) <-- this is a tree node.
+            / \     left rotate   / \
+          (x)  c   <------------ a  (y)
+          / \                       / \
+         a   b                     b   c <-- this is a subtree.
+
+        The paramater "node" is the x node in the right tree.
+        """
         if node.right is None:
             raise ValueError('node\'s right child shouldn\'t be None.')
 
@@ -455,6 +474,16 @@ class BSTree(BaseTree):
         self._left_rotate(node)
 
     def _right_rotate(self, node):
+        """
+             |                       |
+            (y)                     (x) <-- This is a tree node.
+            / \     Right rotate    / \
+          (x)  c   ------------->  a  (y)
+          / \                         / \
+         a   b                       b   c <-- This is a subtree.
+
+        The paramater "node" is the y node in the left tree.
+        """
         if node.right is None:
             raise ValueError('node\'s left child shouldn\'t be None.')
 
