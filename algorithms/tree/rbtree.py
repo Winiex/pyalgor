@@ -79,6 +79,10 @@ class RBTNode(BSTNode):
     def color(self, color):
         self.__color = color
 
+    def free(self):
+        super(RBTNode, self).free()
+        self.color = None
+
     def __repr__(self):
         if self is RBTree.NIL:
             return '<RBTNode: NIL>'
