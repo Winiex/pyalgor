@@ -1,4 +1,6 @@
 __all__ = [
+    'Tree',
+    'TNode',
     'BFIter',
     'DFIter',
     'BSTNode',
@@ -13,7 +15,7 @@ __all__ = [
 ]
 
 
-from .base import BFIter, DFIter
+from .tree import Tree, TNode, BFIter, DFIter
 
 from .bstree import BSTNode, BSTree, \
     PreOrderIter, InOrderIter, PostOrderIter

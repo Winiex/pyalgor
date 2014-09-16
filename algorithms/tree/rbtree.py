@@ -119,7 +119,7 @@ class RBTree(BSTree):
 
         Because when a RBTNode is the root, it's parent
         isn't None but RBTree.NIL, causing the result of
-        BaseTree._is_root being not correct. Because of
+        Tree._is_root being not correct. Because of
         this, we should define the RBTree's own _is_root.
         """
         return node.parent is self.NIL

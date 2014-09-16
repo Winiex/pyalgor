@@ -122,7 +122,7 @@ class BFIter(object):
     __next__ = next
 
 
-class BaseNode(object):
+class TNode(object):
     """
     Basic node.
 
@@ -139,12 +139,16 @@ class BaseNode(object):
                  '_parent', '_children')
 
     def __init__(self, key, value, height,
-                 parent, children=[]):
+                 parent, children=None):
         self._key = key
         self._value = value
         self._parent = parent
         self._height = height
-        self._children = children
+
+        if children is None:
+            self._children = []
+        else:
+            self._children = children
 
     @property
     def key(self):
@@ -202,6 +206,10 @@ class BaseNode(object):
         """
         Access children of node using indexing format.
         """
+        if not self.children:
+            raise ValueError('TNode %s has no children.'
+                             % self.key)
+
         if not isinstance(key, int):
             raise TypeError('Key should be an int type.')
 
@@ -226,6 +234,13 @@ class BaseNode(object):
 
         self._children[key] = value
 
+    def __repr__(self):
+        return '<TNode: key %s, value %s>' % \
+            (self.key, self.value)
+
+    def __str__(self):
+        return str(self.key)
+
     def free(self):
         self._key = None
         self._value = None
@@ -234,7 +249,7 @@ class BaseNode(object):
         self._parent = None
 
 
-class BaseTree(object):
+class Tree(object):
     """
     The basic tree structure.
     Common operations on trees are defined here.
@@ -246,7 +261,7 @@ class BaseTree(object):
     iter_type - The iteration type you want to do
     on your tree. For example,
 
-    tree = BaseTree(iter_type=DFIter)
+    tree = Tree(iter_type=DFIter)
 
     means you want to use deep first iteration on
     your tree. Only a few of iteration types is
@@ -275,7 +290,7 @@ class BaseTree(object):
         self._count = 0
         self._height = 0
         self._iter_type = iter_type
-        self._height_rebuild_needed = False
+        self._rebuild_tree_height = False
 
     def __contains__(self, key):
         for node in self:
@@ -305,29 +320,22 @@ class BaseTree(object):
 
     @property
     def height(self):
-        if self._height_rebuild_needed:
-            self._height = self._rebuild_height()
+        if self._rebuild_tree_height:
+            self._height = self._rebuild_tree_height()
 
         return self._height
 
-    def _refresh_height(self, root_node):
+    def _refresh_nodes_height(self, root_node):
         """
         Refresh the height of all the nodes in a subtree.
         """
-        nodes_list = [root_node]
-
-        while True:
-            try:
-                node = nodes_list.pop(0)
-            except IndexError:
-                break
-
+        def refresh_child_height(node):
             for child in node.children:
-                if child is not None:
-                    child.height = node.height + 1
-                    nodes_list.append(child)
+                child.height = node.height + 1
 
-    def _rebuild_height(self):
+        self.iterate(root_node, refresh_child_height, BFIter)
+
+    def _rebuild_tree_height(self):
         """
         Rebuild the height of the tree.
         """
@@ -351,18 +359,23 @@ class BaseTree(object):
         self._iter_type = iter_type
 
     def __and__(self, other):
+        #TODO
         pass
 
     def __or__(self, other):
+        #TODO
         pass
 
     def __add__(self, other):
+        #TODO
         pass
 
     def __sub__(self, other):
+        #TODO
         pass
 
     def __xor__(self, other):
+        #TODO
         pass
 
     def min_node(self):
@@ -394,3 +407,155 @@ class BaseTree(object):
 
     def __max__(self):
         return self.max_node()
+
+    def is_empty(self):
+        return self._root is None
+
+    def __new_node(self, key, value, height, parent):
+        return TNode(
+            key, value, height, parent
+        )
+
+    def insert(self, key, value, parent_key=None, which_parent=None):
+        if self.is_empty():
+            self._root = self.__new_node(
+                key, value, 1, None
+            )
+
+            self._height = 1
+        else:
+            if parent_key is None or \
+               which_parent is None:
+                raise ValueError('parent_key or which_parent '
+                                 'shouldn\'t be None '
+                                 'when root node exists.')
+
+            try:
+                parent = self.search(parent_key, which_parent)
+            except KeyError:
+                raise KeyError('parent node with key %s '
+                               'not found.' % parent_key)
+
+            new_node = self.__new_node(
+                key, value, parent.height + 1, parent
+            )
+
+            parent.children.append(new_node)
+
+            if new_node.height > self.height:
+                self._height = new_node.height
+
+        self._count += 1
+        return self
+
+    def search(self, key, which=1):
+        """
+        Searches for a node with key in the tree.
+        The searching process uses breadth first
+        iteration.
+
+        which - There may exist nodes with same in the
+        same tree. You can use "which" to specify which
+        you need. For example:
+
+        self.search(1, 2)
+
+        means you need the second node with key 1 in the
+        breadth first iteration process. "which" starts
+        from 1, not 0.
+        """
+
+        if which <= 0:
+            raise ValueError('which should be positive.')
+
+        count = 1
+        result = None
+
+        origin_iter_type = self.iter_type
+
+        self.iter_type = BFIter
+
+        for node in self:
+            if node.key == key:
+                if count == which:
+                    result = node
+                    break
+                else:
+                    count += 1
+
+        self.iter_type = origin_iter_type
+
+        if result is None:
+            # Finally we don't find it.
+            raise KeyError('node with key %s '
+                           'not found.' % key)
+
+        return result
+
+    def _transplant(self, from_node, to_node):
+        """
+        Transplants from_node and its subtree
+        to to_node's position.
+        """
+        if self._is_root(to_node):
+            self._root = from_node
+            self._root.height = 1
+            self._refresh_nodes_height(self._root)
+            self._rebuild_tree_height = True
+        else:
+            parent = to_node.parent
+
+            for index, child in enumerate(parent.children):
+                if child is to_node:
+                    parent[index] = from_node
+
+            from_node.parent = parent
+            from_node.height = parent.height + 1
+
+            self._refresh_nodes_height(from_node)
+            self._rebuild_tree_height = True
+
+        # Free the to_node and it's child nodes.
+        def free(node):
+            node.free()
+
+        self.iterate(to_node, free, BFIter)
+
+    def transplant(self, from_key, to_key,
+                   which_from=1, which_to=1):
+        """
+        Transplants node with from_key and its subtree
+        to positio of node with to_key.
+        """
+        from_node = self.search(from_key, which_from)
+        to_node = self.search(to_key, which_to)
+
+        self._transplant(from_node, to_node)
+
+    def iterate(self, root_node, operation, iter_type=None):
+        """
+        Iterates over subtree with root node "root_node".
+        On every node, operation is taken. Operation is
+        a function like this:
+
+        def print_node(node):
+            print node.key, node.value
+
+        Then you can use operation on a tree:
+
+        tree.iterate(tree.root, print_node)
+
+        The iteration type is defined by iter_type paramater.
+        If iter_type paramater is None, the tree's iter_type
+        is used.
+        """
+        if iter_type is None:
+            iter_type = self.iter_type
+        else:
+            if iter_type not in self._allowed_iters:
+                raise TypeError('iter_type %r error.' % self._iter_type)
+
+        nodes = iter_type(root_node)
+
+        for node in nodes:
+            operation(node)

@@ -1,4 +1,4 @@
-from .base import BaseNode, BaseTree, DFIter, BFIter
+from .tree import TNode, Tree, DFIter, BFIter
 
 
 def subtree_min(root):
@@ -169,7 +169,7 @@ class PostOrderIter(DFIter):
                 return result
 
 
-class BSTNode(BaseNode):
+class BSTNode(TNode):
     """
     Binary search tree node.
     """
@@ -224,7 +224,7 @@ class BSTNode(BaseNode):
         self.__right = None
 
 
-class BSTree(BaseTree):
+class BSTree(Tree):
     """
     Binary search tree.
     """
@@ -517,3 +517,13 @@ class BSTree(BaseTree):
         node = self.search(key)
 
         self._right_rotate(node)
+
+    def transplant(self, from_key, to_key):
+        """
+        Transplants node with from_key and its subtree
+        to positio of node with to_key.
+        """
+        from_node = self.search(from_key)
+        to_node = self.search(to_key)
+
+        self._transplant(from_node, to_node)
