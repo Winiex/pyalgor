@@ -54,8 +54,8 @@ class PreOrderIter(DFIter):
     Pre-order iterator.
     """
 
-    def __init__(self, bstree):
-        super(PreOrderIter, self).__init__(bstree)
+    def __init__(self, root):
+        super(PreOrderIter, self).__init__(root)
 
     def _get_next(self):
         frame = self._pop_stack()
@@ -75,8 +75,8 @@ class InOrderIter(DFIter):
     In-order iterator.
     """
 
-    def __init__(self, bstree):
-        super(InOrderIter, self).__init__(bstree)
+    def __init__(self, root):
+        super(InOrderIter, self).__init__(root)
 
     def _get_next(self):
         frame = self._pop_stack()
@@ -112,8 +112,8 @@ class PostOrderIter(DFIter):
     # returned next.
     CONTINUE = object()
 
-    def __init__(self, bstree):
-        super(PostOrderIter, self).__init__(bstree)
+    def __init__(self, root):
+        super(PostOrderIter, self).__init__(root)
         self.__previous = None
         self.__current = None
 

@@ -17,12 +17,12 @@ class DFIter(object):
     "node[0]" means getting node's first child node.
     """
 
-    def __init__(self, tree):
-        self.__tree = tree
+    def __init__(self, root):
+        self.__root = root
         self._iter_stack = []
 
-        if tree.root is not None:
-            self._iter_stack.append((tree.root, 0))
+        if root is not None:
+            self._iter_stack.append((root, 0))
 
     def _get_child_to(self, node, start):
         """
@@ -98,11 +98,11 @@ class BFIter(object):
     """
     Breadth first traverse iterator.
     """
-    def __init__(self, tree):
-        self.__tree = tree
+    def __init__(self, root):
+        self.__root = root
         self._trave_list = []
-        if tree.root is not None:
-            self._trave_list.append(self.__tree.root)
+        if root is not None:
+            self._trave_list.append(root)
 
     def __iter__(self):
         return self
@@ -299,13 +299,14 @@ class Tree(object):
 
     def __iter__(self):
         if self._iter_type is None:
-            self._iter_type = DFIter
+            iter_type = DFIter
+        else:
+            iter_type = self._iter_type
 
-        iter_type = self._iter_type
         if iter_type not in self._allowed_iters:
             raise TypeError('iter_type %r error.' % self._iter_type)
 
-        return iter_type(self)
+        return iter_type(self._root)
 
     def _is_root(self, node):
         return node.parent is None
@@ -503,14 +504,19 @@ class Tree(object):
             self._refresh_nodes_height(self._root)
             self._rebuild_tree_height = True
         else:
-            parent = to_node.parent
+            to_parent = to_node.parent
+            from_parent = from_node.parent
 
-            for index, child in enumerate(parent.children):
+            for index, child in enumerate(from_parent.children):
+                if child is from_node:
+                    from_parent[index] = None
+
+            for index, child in enumerate(to_parent.children):
                 if child is to_node:
-                    parent[index] = from_node
+                    to_parent[index] = from_node
 
-            from_node.parent = parent
-            from_node.height = parent.height + 1
+            from_node.parent = to_parent
+            from_node.height = to_parent.height + 1
 
             self._refresh_nodes_height(from_node)
             self._rebuild_tree_height = True
@@ -550,7 +556,10 @@ class Tree(object):
         is used.
         """
         if iter_type is None:
-            iter_type = self.iter_type
+            if self._iter_type is None:
+                iter_type = BFIter
+            else:
+                iter_type = self.iter_type
         else:
             if iter_type not in self._allowed_iters:
                 raise TypeError('iter_type %r error.' % self._iter_type)
