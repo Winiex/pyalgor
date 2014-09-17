@@ -1,4 +1,42 @@
-from .bstree import BSTree, BSTNode
+from .tree import BFIter, DFIter
+from .bstree import BSTree, BSTNode, \
+    PreOrderIter, InOrderIter, PostOrderIter
+
+
+class __RBIterFix(object):
+
+    def _node_valid(self, node):
+        return node is not RBTree.NIL
+
+
+class RBBFIter(__RBIterFix, BFIter):
+    """
+    RBTree breadth first iterator.
+    """
+
+
+class RBDFIter(__RBIterFix, DFIter):
+    """
+    RBTree depth first iterator.
+    """
+
+
+class RBPreOrderIter(__RBIterFix, PreOrderIter):
+    """
+    RBTree pre-order iterator.
+    """
+
+
+class RBInOrderIter(__RBIterFix, InOrderIter):
+    """
+    RBTree in-order iterator.
+    """
+
+
+class RBPostOrderIter(__RBIterFix, PostOrderIter):
+    """
+    RBTree post-order iterator.
+    """
 
 
 class Color(object):
@@ -99,6 +137,9 @@ class RBTNode(BSTNode):
 
 
 class RBTree(BSTree):
+
+    _allowed_iters = (RBDFIter, RBBFIter, RBPreOrderIter,
+                      RBInOrderIter, RBPostOrderIter)
 
     NIL = RBTNode(None, None, -1, None,
                   Color.black(), None, None)
@@ -250,3 +291,14 @@ class RBTree(BSTree):
 
     def remove(self, key, value):
         pass
+
+    def __iter__(self):
+        if self._iter_type is None:
+            iter_type = RBDFIter
+        else:
+            iter_type = self._iter_type
+
+        if iter_type not in self._allowed_iters:
+            raise TypeError('iter_type %r error.' % self._iter_type)
+
+        return iter_type(self._root)

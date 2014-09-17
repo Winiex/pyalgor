@@ -1,6 +1,24 @@
-class DFIter(object):
+class Iter(object):
+
+    def __init__(self, root):
+        self._root = root
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        raise NotImplementedError('You need to implement'
+                                  'the next method.')
+
+    def _node_valid(self, node):
+        return node is not None
+
+    __next__ = next
+
+
+class DFIter(Iter):
     """
-    Deep first traverse iterator. In post-order.
+    Deep first traverse iterator. Default in post-order.
 
     The instance variable _iter_stack is used to help
     the iteration process, it's a stack. Each of its
@@ -16,9 +34,8 @@ class DFIter(object):
     in accessing the node's children using index manner.
     "node[0]" means getting node's first child node.
     """
-
     def __init__(self, root):
-        self.__root = root
+        super(DFIter, self).__init__(root)
         self._iter_stack = []
 
         if root is not None:
@@ -30,10 +47,9 @@ class DFIter(object):
         The child_to index is the index of the
         node's child to be visited next.
         """
-
         child_to = start
         for i in xrange(start, node.children_len):
-            if node[i] is None:
+            if not self._node_valid(node[i]):
                 child_to += 1
             else:
                 break
@@ -41,7 +57,7 @@ class DFIter(object):
         return child_to
 
     def _push_stack(self, node, child_to):
-        if node is None:
+        if not self._node_valid(node):
             return
 
         self._iter_stack.append((node, child_to))
@@ -80,9 +96,6 @@ class DFIter(object):
                 node = node[child_to]
                 start = 0
 
-    def __iter__(self):
-        return self
-
     def next(self):
         node = self._get_next()
 
@@ -91,21 +104,17 @@ class DFIter(object):
 
         return node
 
-    __next__ = next
-
 
 class BFIter(object):
     """
     Breadth first traverse iterator.
     """
     def __init__(self, root):
-        self.__root = root
+        super(BFIter, self).__init__(root)
         self._trave_list = []
+
         if root is not None:
             self._trave_list.append(root)
-
-    def __iter__(self):
-        return self
 
     def next(self):
         try:
@@ -114,12 +123,10 @@ class BFIter(object):
             raise StopIteration()
 
         for child in node.children:
-            if child is not None:
+            if self._node_valid(child):
                 self._trave_list.append(child)
 
         return node
-
-    __next__ = next
 
 
 class TNode(object):
@@ -448,6 +455,15 @@ class Tree(object):
 
         self._count += 1
         return self
+
+    def remove(self, key, which):
+        node = self.search(key, which)
+
+        parent = node.parent
+
+        for index, child in enumerate(parent.children):
+            if child is node:
+                parent[index] = None
 
     def search(self, key, which=1):
         """

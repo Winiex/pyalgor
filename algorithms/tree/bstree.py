@@ -53,7 +53,6 @@ class PreOrderIter(DFIter):
     """
     Pre-order iterator.
     """
-
     def __init__(self, root):
         super(PreOrderIter, self).__init__(root)
 
@@ -74,7 +73,6 @@ class InOrderIter(DFIter):
     """
     In-order iterator.
     """
-
     def __init__(self, root):
         super(InOrderIter, self).__init__(root)
 
@@ -104,7 +102,6 @@ class PostOrderIter(DFIter):
     """
     Post-order iterator.
     """
-
     # The CONTINUE object is used to
     # decide whether we should invoke
     # the "_get_next" method again in the
