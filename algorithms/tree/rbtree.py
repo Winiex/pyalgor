@@ -117,6 +117,17 @@ class RBTNode(BSTNode):
     def color(self, color):
         self.__color = color
 
+    def is_leaf(self):
+        if not self.children:
+            # self.children is []
+            return True
+
+        for child in self.children:
+            if child is not RBTree.NIL:
+                return False
+
+        return True
+
     def free(self):
         super(RBTNode, self).free()
         self.color = None

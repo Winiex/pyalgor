@@ -209,6 +209,20 @@ class TNode(object):
 
         return count
 
+    def is_leaf(self):
+        """
+        Judges whether a node is a leaf node.
+        """
+        if not self.children:
+            # self.children is []
+            return True
+
+        for child in self.children:
+            if child is not None:
+                return False
+
+        return True
+
     def __getitem__(self, key):
         """
         Access children of node using indexing format.
@@ -310,10 +324,13 @@ class Tree(object):
         else:
             iter_type = self._iter_type
 
-        if iter_type not in self._allowed_iters:
-            raise TypeError('iter_type %r error.' % self._iter_type)
+        self._check_iter(iter_type)
 
         return iter_type(self._root)
+
+    def _check_iter(self, iter_type):
+        if iter_type not in self._allowed_iters:
+            raise TypeError('iter_type %r error.' % self._iter_type)
 
     def _is_root(self, node):
         return node.parent is None
@@ -365,56 +382,6 @@ class Tree(object):
     @iter_type.setter
     def iter_type(self, iter_type):
         self._iter_type = iter_type
-
-    def __and__(self, other):
-        #TODO
-        pass
-
-    def __or__(self, other):
-        #TODO
-        pass
-
-    def __add__(self, other):
-        #TODO
-        pass
-
-    def __sub__(self, other):
-        #TODO
-        pass
-
-    def __xor__(self, other):
-        #TODO
-        pass
-
-    def min_node(self):
-        if self._root is None:
-            raise ValueError('Tree is empty.')
-
-        min_node = self._root
-
-        for node in self:
-            if min_node.key > node.key:
-                min_node = node
-
-        return min_node
-
-    def __min__(self):
-        return self.min_node()
-
-    def max_node(self):
-        if self._root is None:
-            raise ValueError('Tree is empty.')
-
-        max_node = self._root
-
-        for node in self:
-            if max_node.key < node.key:
-                max_node = node
-
-        return max_node
-
-    def __max__(self):
-        return self.max_node()
 
     def is_empty(self):
         return self._root is None
@@ -577,10 +544,59 @@ class Tree(object):
             else:
                 iter_type = self.iter_type
         else:
-            if iter_type not in self._allowed_iters:
-                raise TypeError('iter_type %r error.' % self._iter_type)
+            self._check_iter(iter_type)
 
         nodes = iter_type(root_node)
 
         for node in nodes:
             operation(node)
+
+    def min_node(self):
+        if self._root is None:
+            raise ValueError('Tree is empty.')
+
+        min_node = self._root
+
+        for node in self:
+            if min_node.key > node.key:
+                min_node = node
+
+        return min_node
+
+    def max_node(self):
+        if self._root is None:
+            raise ValueError('Tree is empty.')
+
+        max_node = self._root
+
+        for node in self:
+            if max_node.key < node.key:
+                max_node = node
+
+        return max_node
+
+    def __and__(self, other):
+        #TODO
+        pass
+
+    def __or__(self, other):
+        #TODO
+        pass
+
+    def __add__(self, other):
+        #TODO
+        pass
+
+    def __sub__(self, other):
+        #TODO
+        pass
+
+    def __xor__(self, other):
+        #TODO
+        pass
+
+    def __max__(self):
+        return self.max_node()
+
+    def __min__(self):
+        return self.min_node()
