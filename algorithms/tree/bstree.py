@@ -341,8 +341,9 @@ class BSTree(Tree):
 
     def search(self, key):
         """
-        Search for the node with the specific key.
-        Raise KeyError if key exists, otherwise return None.
+        Searches for a node with the specified key.
+
+        Raise KeyError if the node doesn't exist.
         """
         if self._root is None:
             raise ValueError('Tree is empty.')
@@ -361,9 +362,12 @@ class BSTree(Tree):
                 if node is None:
                     raise KeyError('key %s doesn\'t exist.' % key)
 
-    def successor(self, key):
-        node = self.search(key)
+    def _successor(self, node):
+        """
+        Gets the successor of a node.
 
+        Returns None if the successor doesn't exist.
+        """
         if node.right is not None:
             return subtree_min(node.right)
 
@@ -375,9 +379,22 @@ class BSTree(Tree):
 
         return parent
 
-    def predecessor(self, key):
+    def successor(self, key):
+        """
+        Gets the successor of a node with the specified key.
+
+        Returns None if the successor doesn't exist.
+        """
         node = self.search(key)
 
+        return self._successor(node)
+
+    def _predecessor(self, node):
+        """
+        Gets the predecessor of a node.
+
+        Returns None if the predecessor doesn't exist.
+        """
         if node.left is not None:
             return subtree_max(node.left)
 
@@ -388,6 +405,16 @@ class BSTree(Tree):
             parent = node.parent
 
         return parent
+
+    def predecessor(self, key):
+        """
+        Gets the predecessor of a node with the specified key.
+
+        Returns None if the predecessor doesn't exist.
+        """
+        node = self.search(key)
+
+        return self._predecessor(node)
 
     def __contains__(self, key):
         if self._root is None:

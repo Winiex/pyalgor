@@ -318,6 +318,8 @@ class Tree(object):
             if key == node.key:
                 return True
 
+        return False
+
     def __iter__(self):
         if self._iter_type is None:
             iter_type = DFIter
