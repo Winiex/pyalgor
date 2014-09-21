@@ -5,8 +5,8 @@ from .bstree import BSTree, BSTNode, \
 
 class __RBIterFix(object):
 
-    def _node_valid(self, node):
-        return node is not RBTree.NIL
+    def _node_empty(self, node):
+        return node is RBTree.NIL
 
 
 class RBBFIter(__RBIterFix, BFIter):
@@ -175,6 +175,9 @@ class RBTree(BSTree):
         this, we should define the RBTree's own _is_root.
         """
         return node.parent is self.NIL
+
+    def _node_empty(self, node):
+        return node is self.NIL
 
     def insert(self, key, value):
         new_node = self.NIL

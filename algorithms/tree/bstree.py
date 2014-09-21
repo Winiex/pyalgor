@@ -203,6 +203,24 @@ class BSTNode(TNode):
         self.__right = right
         self._children[1] = right
 
+    @property
+    def parent_side(self):
+        """
+        Judges the node is on which side of its parent.
+
+        On the left returns 0, on the right returns 1.
+        If the node has no parent, the method returns -1.
+        """
+        if self._parent is None:
+            return -1
+
+        if self._parent.left is self:
+            return 0
+        elif self._parent.right is self:
+            return 1
+        else:
+            raise ValueError('Node invalid.')
+
     def __setitem__(self, key, value):
         super(BSTNode, self).__setitem__(key, value)
 
@@ -256,7 +274,7 @@ class BSTree(Tree):
                     # removing a node, the height of the tree
                     # needs rebuilding.
                     if self._height_rebuild_needed:
-                        self._rebuild_height()
+                        self._rebuild_tree_height()
 
                     if self.height < parent.height + 1:
                         # We should update the tree's height
@@ -277,67 +295,115 @@ class BSTree(Tree):
 
         return self
 
-    def remove(self, key):
-        node = self._root
+    def _remove(self, node):
+        """
+        Removes the specific node from the tree.o
+        """
+        if self._is_root(node):
+            successor = self._successor(node)
 
-        if node is None:
-            raise KeyError('Tree is empty.')
-        else:
-            parent = None
-            direction = 0
+            if successor is not None:
+                # node has successor.
+                node.key = successor.key
+                node.value = successor.value
 
-            # Find the node with the smallest key in the right
-            # subtree of the node to be deleted, and replace the
-            # deleted node with it.
-            while True:
-                if key == node.key:
-                    self._height_rebuild_needed = True
+                if successor.parent_side == 0:
+                    successor.parent.left = successor.right
+                else:
+                    successor.parent.right = successor.right
 
-                    if node.left is not None and \
-                       node.right is not None:
-                        rep_parent = node
-                        direction = 1
-                        replacement = node[1]
+                if successor.right is not None:
+                    successor.right.parent = successor.parent
+                    successor.right.height = successor.height
 
-                        while replacement.left is not None:
-                            rep_parent = replacement
-                            direction = 0
-                            replacement = replacement[0]
+                self._refresh_nodes_height(successor.right)
+                successor.free()
+            else:
+                predecessor = self._predecessor(node)
 
-                        rep_parent[direction] = replacement.right
+                if predecessor is None:
+                    # This means there's only root node
+                    # in the tree. The node has no successor
+                    # or predecessor.
+                    self._root.free()
+                    self._root = None
+                else:
+                    # node has predecessor.
+                    node.key = predecessor.key
+                    node.value = predecessor.value
 
-                        if rep_parent != node:
-                            rep_parent.left = None
-
-                        # Height remains the node's value
-                        node.key = replacement.key
-                        node.value = replacement.value
-
-                        replacement.free()
+                    if predecessor.parent_side == 0:
+                        predecessor.parent.left = predecessor.left
                     else:
-                        down_direct = 1 if node.left is None else 0
+                        predecessor.parent.right = predecessor.left
 
-                        if parent is None:
-                            self._root = node[down_direct]
+                    if predecessor.left is not None:
+                        predecessor.left.parent = predecessor.parent
+                        predecessor.left.height = predecessor.height
+
+                    self._refresh_nodes_height(predecessor.left)
+                    predecessor.free()
+        else:
+            if node.is_leaf():
+                if node.parent_side == 0:
+                    node.parent.left = None
+                else:
+                    node.parent.right = None
+
+                node.free()
+            else:
+                if node.left is not None and \
+                   node.right is not None:
+                    successor = self._successor(node)
+
+                    node.key = successor.key
+                    node.value = successor.value
+
+                    if successor.parent_side == 0:
+                        successor.parent.left = successor.right
+                    else:
+                        successor.parent.right = successor.right
+
+                    if not self._node_empty(successor.right):
+                        successor.right.parent = successor.parent
+                        successor.right.height = successor.height
+
+                    self._refresh_nodes_height(successor.right)
+                    successor.free()
+                else:
+                    if not self._node_empty(node.left):
+                        if node.parent_side == 0:
+                            node.parent.left = node.left
                         else:
-                            parent[direction] = node[down_direct]
+                            node.parent.right = node.left
 
-                        # Update the replacement node's height and parent
-                        node[down_direct].height = node.height
-                        node[down_direct].parent = parent
+                        node.left.parent = node.parent
+                        node.left.height = node.height
 
+                        self._refresh_nodes_height(node.left)
+                        node.free()
+                    else:
+                        if node.parent_side == 0:
+                            node.parent.left = node.right
+                        else:
+                            node.parent.right = node.right
+
+                        node.right.parent = node.parent
+                        node.right.height = node.height
+
+                        self._refresh_nodes_height(node.right)
                         node.free()
 
-                    self._count += -1
-                    break
-                else:
-                    # Find out the node to be deleted.
-                    direction = 0 if key <= node.key else 1
-                    parent = node
-                    node = node[direction]
+        self._height_rebuild_needed = True
 
-                    if node is None:
-                        raise KeyError('Key not found.')
+    def remove(self, key):
+        """
+        Removes the node with specific key
+        from the tree.
+        """
+        node = self.search(key)
+
+        self._remove(node)
 
     def search(self, key):
         """

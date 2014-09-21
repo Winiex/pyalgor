@@ -10,8 +10,8 @@ class Iter(object):
         raise NotImplementedError('You need to implement'
                                   'the next method.')
 
-    def _node_valid(self, node):
-        return node is not None
+    def _node_empty(self, node):
+        return node is None
 
     __next__ = next
 
@@ -49,7 +49,7 @@ class DFIter(Iter):
         """
         child_to = start
         for i in xrange(start, node.children_len):
-            if not self._node_valid(node[i]):
+            if self._node_empty(node[i]):
                 child_to += 1
             else:
                 break
@@ -57,7 +57,7 @@ class DFIter(Iter):
         return child_to
 
     def _push_stack(self, node, child_to):
-        if not self._node_valid(node):
+        if self._node_empty(node):
             return
 
         self._iter_stack.append((node, child_to))
@@ -105,7 +105,7 @@ class DFIter(Iter):
         return node
 
 
-class BFIter(object):
+class BFIter(Iter):
     """
     Breadth first traverse iterator.
     """
@@ -123,7 +123,7 @@ class BFIter(object):
             raise StopIteration()
 
         for child in node.children:
-            if self._node_valid(child):
+            if not self._node_empty(child):
                 self._trave_list.append(child)
 
         return node
@@ -311,7 +311,7 @@ class Tree(object):
         self._count = 0
         self._height = 0
         self._iter_type = iter_type
-        self._rebuild_tree_height = False
+        self._height_rebuild_needed = False
 
     def __contains__(self, key):
         for node in self:
@@ -347,7 +347,7 @@ class Tree(object):
 
     @property
     def height(self):
-        if self._rebuild_tree_height:
+        if self._height_rebuild_needed:
             self._height = self._rebuild_tree_height()
 
         return self._height
@@ -358,7 +358,8 @@ class Tree(object):
         """
         def refresh_child_height(node):
             for child in node.children:
-                child.height = node.height + 1
+                if not self._node_empty(child):
+                    child.height = node.height + 1
 
         self.iterate(root_node, refresh_child_height, BFIter)
 
@@ -376,6 +377,9 @@ class Tree(object):
                 height = node.height
 
         return height
+
+    def _node_empty(self, node):
+        return node is None
 
     @property
     def iter_type(self):
@@ -487,7 +491,7 @@ class Tree(object):
             self._root = from_node
             self._root.height = 1
             self._refresh_nodes_height(self._root)
-            self._rebuild_tree_height = True
+            self._height_rebuild_needed = True
         else:
             to_parent = to_node.parent
             from_parent = from_node.parent
@@ -504,7 +508,7 @@ class Tree(object):
             from_node.height = to_parent.height + 1
 
             self._refresh_nodes_height(from_node)
-            self._rebuild_tree_height = True
+            self._height_rebuild_needed = True
 
         # Free the to_node and it's child nodes.
         def free(node):
