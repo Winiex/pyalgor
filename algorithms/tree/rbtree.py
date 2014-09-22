@@ -262,5 +262,204 @@ class RBTree(BSTree):
                     parent.parent.color.turn_red()
                     node_to_fix = parent.parent
 
-    def remove(self, key, value):
-        pass
+    def _remove(self, node):
+        node_to_fix = None
+        removal_color = None
+
+        if self._is_root(node):
+            successor = self._successor(node)
+
+            if not self._node_empty(successor):
+                # node has successor.
+                node.key = successor.key
+                node.value = successor.value
+
+                if successor.parent_side == 0:
+                    successor.parent.left = successor.right
+                else:
+                    successor.parent.right = successor.right
+
+                if not self._node_empty(successor.right):
+                    successor.right.parent = successor.parent
+                    successor.right.height = successor.height
+
+                self._refresh_nodes_height(successor.right)
+
+                node_to_fix = successor.right
+                removal_color = Color.black() \
+                    if successor.color.is_black() \
+                    else Color.red()
+
+                successor.free()
+            else:
+                predecessor = self._predecessor(node)
+
+                if self._node_empty(predecessor):
+                    # This means there's only root node
+                    # in the tree. The node has no successor
+                    # or predecessor.
+                    self._root.free()
+                    self._root = None
+                else:
+                    # node has predecessor.
+                    # node has predecessor.
+                    node.key = predecessor.key
+                    node.value = predecessor.value
+
+                    if predecessor.parent_side == 0:
+                        predecessor.parent.left = predecessor.left
+                    else:
+                        predecessor.parent.right = predecessor.left
+
+                    if not self._node_empty(predecessor.left):
+                        predecessor.left.parent = predecessor.parent
+                        predecessor.left.height = predecessor.height
+
+                    self._refresh_nodes_height(predecessor.left)
+
+                    node_to_fix = predecessor.left
+                    removal_color = Color.black() \
+                        if predecessor.color.is_black() \
+                        else Color.red()
+                    predecessor.free()
+        else:
+            if node.is_leaf():
+                if node.parent_side == 0:
+                    node.parent.left = None
+                else:
+                    node.parent.right = None
+
+                node_to_fix = node.right
+                removal_color = Color.black() \
+                    if node.right.color.is_black() \
+                    else Color.red()
+                node.free()
+            else:
+                if not self._node_empty(node.left) and \
+                   not self._node_empty(node.right):
+                    successor = self._successor(node)
+
+                    node.key = successor.key
+                    node.value = successor.value
+
+                    if successor.parent_side == 0:
+                        successor.parent.left = successor.right
+                    else:
+                        successor.parent.right = successor.right
+
+                    if not self._node_empty(successor.right):
+                        successor.right.parent = successor.parent
+                        successor.right.height = successor.height
+
+                    self._refresh_nodes_height(successor.right)
+
+                    node_to_fix = successor.right
+                    removal_color = Color.black() \
+                        if successor.color.is_black() \
+                        else Color.red()
+                    successor.free()
+                else:
+                    if not self._node_empty(node.left):
+                        if node.parent_side == 0:
+                            node.parent.left = node.left
+                        else:
+                            node.parent.right = node.left
+
+                        node.left.parent = node.parent
+                        node.left.height = node.height
+
+                        self._refresh_nodes_height(node.left)
+
+                        node_to_fix = node.left
+                        node.free()
+                    else:
+                        if node.parent_side == 0:
+                            node.parent.left = node.right
+                        else:
+                            node.parent.right = node.right
+
+                        node.right.parent = node.parent
+                        node.right.height = node.height
+
+                        self._refresh_nodes_height(node.right)
+
+                        node_to_fix = node.right
+                        node.free()
+
+                    removal_color = Color.black() \
+                        if node.color.is_black() \
+                        else Color.red()
+
+        self._height_rebuild_needed = True
+
+        if node_to_fix is not None and \
+           removal_color is not None and \
+           removal_color.is_black():
+            self.__fix_remove(node_to_fix)
+
+    def __fix_remove(self, node):
+        node_to_fix = node
+        while (node_to_fix.color.is_black() and
+               not self._is_root(node_to_fix)):
+
+            if node_to_fix.parent_side == 0:
+                uncle = node_to_fix.parent.right
+
+                if uncle.color.is_red():
+                    uncle.color.turn_black()
+                    node_to_fix.parent.color.turn_red()
+                    self.left_rotate(node_to_fix.parent)
+                    uncle = node_to_fix.parent.right
+
+                if uncle.left.color.is_black() and \
+                   uncle.right.color.is_black():
+                    uncle.color.turn_red()
+                    node_to_fix = node_to_fix.parent
+                elif uncle.right.color.is_black():
+                    uncle.left.color.turn_black()
+                    uncle.color.turn_red()
+                    self.right_rotate(uncle)
+                    uncle = node_to_fix.parent.right
+                else:
+                    uncle.color = Color.black() \
+                        if node_to_fix.parent.color.is_black() \
+                        else Color.red()
+
+                    node_to_fix.parent.color.turn_black()
+                    uncle.right.color.turn_black()
+                    self.left_rotate(node_to_fix.parent)
+                    node_to_fix = self._root
+            else:
+                uncle = node_to_fix.parent.left
+
+                if uncle.color.is_red():
+                    uncle.color.turn_black()
+                    node_to_fix.parent.color.turn_red()
+                    self.right_rotate(node_to_fix.parent)
+                    uncle = node_to_fix.parent.left
+
+                if uncle.right.color.is_black() and \
+                   uncle.left.color.is_black():
+                    uncle.color.turn_red()
+                    node_to_fix = node_to_fix.parent
+                elif uncle.left.color.is_black():
+                    uncle.right.color.turn_black()
+                    uncle.color.turn_red()
+                    self.left_rotate(uncle)
+                    uncle = node_to_fix.parent.left
+                else:
+                    uncle.color = Color.black() \
+                        if node_to_fix.parent.color.is_black() \
+                        else Color.red()
+
+                    node_to_fix.parent.color.turn_black()
+                    uncle.left.color.turn_black()
+                    self.right_rotate(node_to_fix.parent)
+                    node_to_fix = self._root
+
+        node_to_fix.color.turn_black()
+
+    def remove(self, key):
+        node = self.search(key)
+
+        self._remove(node)
