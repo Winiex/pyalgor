@@ -1,17 +1,19 @@
 class Iter(object):
 
-    def __init__(self, root):
+    def __init__(self, root, tree):
         self._root = root
+        self._tree = tree
 
     def __iter__(self):
         return self
 
     def next(self):
-        raise NotImplementedError('You need to implement'
-                                  'the next method.')
+        raise NotImplementedError(
+            'You need to implement the next method.'
+        )
 
     def _node_empty(self, node):
-        return node is None
+        return self._tree._node_empty(node)
 
     __next__ = next
 
@@ -31,14 +33,16 @@ class DFIter(Iter):
     is an index starts from 0, just like array does.
     This is because we implement __getitem__ and
     __setitem__ methods in tree node class, results
-    in accessing the node's children using index manner.
+    in accessing the node's children using index
+    manner.
+
     "node[0]" means getting node's first child node.
     """
-    def __init__(self, root):
-        super(DFIter, self).__init__(root)
+    def __init__(self, root, tree):
+        super(DFIter, self).__init__(root, tree)
         self._iter_stack = []
 
-        if root is not None:
+        if not self._node_empty(root):
             self._iter_stack.append((root, 0))
 
     def _get_child_to(self, node, start):
@@ -97,23 +101,23 @@ class DFIter(Iter):
                 start = 0
 
     def next(self):
-        node = self._get_next()
+        result = self._get_next()
 
-        if node is None:
+        if result is None:
             raise StopIteration()
 
-        return node
+        return result
 
 
 class BFIter(Iter):
     """
     Breadth first traverse iterator.
     """
-    def __init__(self, root):
-        super(BFIter, self).__init__(root)
+    def __init__(self, root, tree):
+        super(BFIter, self).__init__(root, tree)
         self._trave_list = []
 
-        if root is not None:
+        if not self._node_empty(root):
             self._trave_list.append(root)
 
     def next(self):
@@ -204,7 +208,7 @@ class TNode(object):
         """
         count = 0
         for child in self._children:
-            if child is not None:
+            if not self._node_empty(child):
                 count += 1
 
         return count
@@ -218,7 +222,7 @@ class TNode(object):
             return True
 
         for child in self.children:
-            if child is not None:
+            if self._node_empty(child):
                 return False
 
         return True
@@ -328,7 +332,7 @@ class Tree(object):
 
         self._check_iter(iter_type)
 
-        return iter_type(self._root)
+        return iter_type(self._root, self)
 
     def _check_iter(self, iter_type):
         if iter_type not in self._allowed_iters:
@@ -367,7 +371,7 @@ class Tree(object):
         """
         Rebuild the height of the tree.
         """
-        if self.root is None:
+        if self._node_empty(self._root):
             return 0
 
         height = self.root.height
@@ -390,14 +394,15 @@ class Tree(object):
         self._iter_type = iter_type
 
     def is_empty(self):
-        return self._root is None
+        return self._node_empty(self._root)
 
     def __new_node(self, key, value, height, parent):
         return TNode(
             key, value, height, parent
         )
 
-    def insert(self, key, value, parent_key=None, which_parent=None):
+    def insert(self, key, value,
+               parent_key=None, which_parent=None):
         if self.is_empty():
             self._root = self.__new_node(
                 key, value, 1, None
@@ -552,13 +557,13 @@ class Tree(object):
         else:
             self._check_iter(iter_type)
 
-        nodes = iter_type(root_node)
+        nodes = iter_type(root_node, self)
 
         for node in nodes:
             operation(node)
 
     def min_node(self):
-        if self._root is None:
+        if self._node_empty(self._root):
             raise ValueError('Tree is empty.')
 
         min_node = self._root
@@ -570,7 +575,7 @@ class Tree(object):
         return min_node
 
     def max_node(self):
-        if self._root is None:
+        if self._node_empty(self._root):
             raise ValueError('Tree is empty.')
 
         max_node = self._root

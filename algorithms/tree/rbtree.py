@@ -1,42 +1,4 @@
-from .tree import BFIter, DFIter
-from .bstree import BSTree, BSTNode, \
-    PreOrderIter, InOrderIter, PostOrderIter
-
-
-class __RBIterFix(object):
-
-    def _node_empty(self, node):
-        return node is RBTree.NIL
-
-
-class RBBFIter(__RBIterFix, BFIter):
-    """
-    RBTree breadth first iterator.
-    """
-
-
-class RBDFIter(__RBIterFix, DFIter):
-    """
-    RBTree depth first iterator.
-    """
-
-
-class RBPreOrderIter(__RBIterFix, PreOrderIter):
-    """
-    RBTree pre-order iterator.
-    """
-
-
-class RBInOrderIter(__RBIterFix, InOrderIter):
-    """
-    RBTree in-order iterator.
-    """
-
-
-class RBPostOrderIter(__RBIterFix, PostOrderIter):
-    """
-    RBTree post-order iterator.
-    """
+from .bstree import BSTree, BSTNode
 
 
 class Color(object):
@@ -149,9 +111,6 @@ class RBTNode(BSTNode):
 
 class RBTree(BSTree):
 
-    _allowed_iters = (RBDFIter, RBBFIter, RBPreOrderIter,
-                      RBInOrderIter, RBPostOrderIter)
-
     NIL = RBTNode(None, None, -1, None,
                   Color.black(), None, None)
 
@@ -193,10 +152,10 @@ class RBTree(BSTree):
             node = self._root
 
             while True:
-                if node is self.NIL:
+                if self._node_empty(node):
                     parent[direction] = self.__new_node(
-                        key, value, parent.height + 1, parent,
-                        Color.red()
+                        key, value, parent.height + 1,
+                        parent, Color.red()
                     )
 
                     new_node = parent[direction]
@@ -205,7 +164,7 @@ class RBTree(BSTree):
                     # removing a node, the height of the tree
                     # needs rebuilding.
                     if self._height_rebuild_needed:
-                        self._rebuild_height()
+                        self._rebuild_tree_height()
 
                     if self.height < parent.height + 1:
                         # We should update the tree's height
@@ -305,14 +264,3 @@ class RBTree(BSTree):
 
     def remove(self, key, value):
         pass
-
-    def __iter__(self):
-        if self._iter_type is None:
-            iter_type = RBDFIter
-        else:
-            iter_type = self._iter_type
-
-        if iter_type not in self._allowed_iters:
-            raise TypeError('iter_type %r error.' % self._iter_type)
-
-        return iter_type(self._root)

@@ -1,22 +1,24 @@
 from .tree import TNode, Tree, DFIter, BFIter
 
 
-def subtree_min(root):
+def subtree_min(root, tree):
     """
     Find the node with minimium key in a BSTree subtree.
 
     root - the subtree's root node.
-    """
-    if root is None:
-        raise ValueError('root node should not be None.')
 
-    if root.left is None:
+    tree - the tree instance.
+    """
+    if tree._node_empty(root):
+        raise ValueError('Root node should not be None.')
+
+    if tree._node_empty(root.left):
         return root
 
     node = root
 
     while True:
-        if node[0] is not None:
+        if not tree._node_empty(node[0]):
             node = node[0]
             continue
         else:
@@ -25,22 +27,24 @@ def subtree_min(root):
     return node
 
 
-def subtree_max(root):
+def subtree_max(root, tree):
     """
     Find the node with maximium key in a BSTree subtree.
 
     root - the subtree's root node.
+
+    tree - the tree instance.
     """
-    if root is None:
+    if tree._node_empty(root):
         raise ValueError('root node should not be None.')
 
-    if root.right is None:
+    if tree._node_empty(root.right):
         return root
 
     node = root
 
     while True:
-        if node[1] is not None:
+        if not tree._node_empty(node[1]):
             node = node[1]
             continue
         else:
@@ -53,8 +57,8 @@ class PreOrderIter(DFIter):
     """
     Pre-order iterator.
     """
-    def __init__(self, root):
-        super(PreOrderIter, self).__init__(root)
+    def __init__(self, root, tree):
+        super(PreOrderIter, self).__init__(root, tree)
 
     def _get_next(self):
         frame = self._pop_stack()
@@ -73,8 +77,8 @@ class InOrderIter(DFIter):
     """
     In-order iterator.
     """
-    def __init__(self, root):
-        super(InOrderIter, self).__init__(root)
+    def __init__(self, root, tree):
+        super(InOrderIter, self).__init__(root, tree)
 
     def _get_next(self):
         frame = self._pop_stack()
@@ -90,7 +94,7 @@ class InOrderIter(DFIter):
             return node
 
         while True:
-            if node[0] is not None:
+            if not self._node_empty(node[0]):
                 self._push_stack(node, 1)
                 node = node[0]
             else:
@@ -109,8 +113,8 @@ class PostOrderIter(DFIter):
     # returned next.
     CONTINUE = object()
 
-    def __init__(self, root):
-        super(PostOrderIter, self).__init__(root)
+    def __init__(self, root, tree):
+        super(PostOrderIter, self).__init__(root, tree)
         self.__previous = None
         self.__current = None
 
@@ -127,22 +131,26 @@ class PostOrderIter(DFIter):
         # frame.
         self.__current = frame[0]
 
-        if self.__previous is None or \
+        if self._node_empty(self.__previous) or \
            self.__previous.left is self.__current or \
            self.__previous.right is self.__current:
-            if self.__current.left is not None:
+
+            if not self._node_empty(self.__current.left):
                 self._push_stack(self.__current.left, 0)
-            elif self.__current.right is not None:
+            elif not self._node_empty(self.__current.right):
                 self._push_stack(self.__current.right, 0)
             else:
                 self._pop_stack()
                 result = self.__current
+
         elif self.__current.left is self.__previous:
-            if self.__current.right is not None:
+
+            if not self._node_empty(self.__current.right):
                 self._push_stack(self.__current.right, 0)
             else:
                 self._pop_stack()
                 result = self.__current
+
         elif self.__current.right is self.__previous:
             self._pop_stack()
             result = self.__current
@@ -211,7 +219,7 @@ class BSTNode(TNode):
         On the left returns 0, on the right returns 1.
         If the node has no parent, the method returns -1.
         """
-        if self._parent is None:
+        if self._node_empty(self._parent):
             return -1
 
         if self._parent.left is self:
@@ -256,7 +264,7 @@ class BSTree(Tree):
                        left, right)
 
     def insert(self, key, value):
-        if self._root is None:
+        if self._node_empty(self._root):
             self._root = self.__new_node(key, value, 1, None)
             self._height = 1
         else:
@@ -265,7 +273,7 @@ class BSTree(Tree):
             node = self._root
 
             while True:
-                if node is None:
+                if self._node_empty(node):
                     parent[direction] = self.__new_node(
                         key, value, parent.height + 1, parent
                     )
@@ -302,7 +310,7 @@ class BSTree(Tree):
         if self._is_root(node):
             successor = self._successor(node)
 
-            if successor is not None:
+            if not self._node_empty(successor):
                 # node has successor.
                 node.key = successor.key
                 node.value = successor.value
@@ -312,7 +320,7 @@ class BSTree(Tree):
                 else:
                     successor.parent.right = successor.right
 
-                if successor.right is not None:
+                if not self._node_empty(successor.right):
                     successor.right.parent = successor.parent
                     successor.right.height = successor.height
 
@@ -321,7 +329,7 @@ class BSTree(Tree):
             else:
                 predecessor = self._predecessor(node)
 
-                if predecessor is None:
+                if self._node_empty(predecessor):
                     # This means there's only root node
                     # in the tree. The node has no successor
                     # or predecessor.
@@ -337,7 +345,7 @@ class BSTree(Tree):
                     else:
                         predecessor.parent.right = predecessor.left
 
-                    if predecessor.left is not None:
+                    if not self._node_empty(predecessor.left):
                         predecessor.left.parent = predecessor.parent
                         predecessor.left.height = predecessor.height
 
@@ -352,8 +360,8 @@ class BSTree(Tree):
 
                 node.free()
             else:
-                if node.left is not None and \
-                   node.right is not None:
+                if not self._node_empty(node.left) and \
+                   not self._node_empty(node.right):
                     successor = self._successor(node)
 
                     node.key = successor.key
@@ -411,7 +419,7 @@ class BSTree(Tree):
 
         Raise KeyError if the node doesn't exist.
         """
-        if self._root is None:
+        if self._node_empty(self._root):
             raise ValueError('Tree is empty.')
 
         parent = None
@@ -425,7 +433,7 @@ class BSTree(Tree):
                 parent = node
                 node = parent[direction]
 
-                if node is None:
+                if self._node_empty(node):
                     raise KeyError('key %s doesn\'t exist.' % key)
 
     def _successor(self, node):
@@ -434,12 +442,13 @@ class BSTree(Tree):
 
         Returns None if the successor doesn't exist.
         """
-        if node.right is not None:
-            return subtree_min(node.right)
+        if not self._node_empty(node.right):
+            return subtree_min(node.right, self)
 
         parent = node.parent
 
-        while parent is not None and node is parent.right:
+        while (not self._node_empty(parent) and
+               node is parent.right):
             node = parent
             parent = node.parent
 
@@ -461,12 +470,13 @@ class BSTree(Tree):
 
         Returns None if the predecessor doesn't exist.
         """
-        if node.left is not None:
-            return subtree_max(node.left)
+        if not self._node_empty(node.left):
+            return subtree_max(node.left, self)
 
         parent = node.parent
 
-        while parent is not None and node is parent.left:
+        while (not self._node_empty(parent) and
+               node is parent.left):
             node = parent
             parent = node.parent
 
@@ -483,7 +493,7 @@ class BSTree(Tree):
         return self._predecessor(node)
 
     def __contains__(self, key):
-        if self._root is None:
+        if self._node_empty(self._root):
             return None
 
         parent = None
@@ -491,7 +501,7 @@ class BSTree(Tree):
         direction = 0
 
         while True:
-            if node is None:
+            if self._node_empty(node):
                 return False
             if key == node.key:
                 return True
@@ -504,19 +514,19 @@ class BSTree(Tree):
         return self.min_node()
 
     def min_node(self):
-        if self._root is None:
+        if self._node_empty(self._root):
             raise ValueError('BSTree is empty.')
 
-        return subtree_min(self._root)
+        return subtree_min(self._root, self)
 
     def __max__(self):
         return self.max_node()
 
     def max_node(self):
-        if self._root is None:
+        if self._node_empty(self._root):
             raise ValueError('BSTree is empty.')
 
-        return subtree_max(self._root)
+        return subtree_max(self._root, self)
 
     def _left_rotate(self, node):
         """
@@ -529,7 +539,7 @@ class BSTree(Tree):
 
         The paramater "node" is the x node in the right tree.
         """
-        if node.right is None:
+        if self._node_empty(node.right):
             raise ValueError('node\'s right child shouldn\'t be None.')
 
         right_child = node.right
@@ -548,14 +558,14 @@ class BSTree(Tree):
 
         node.right = right_child.left
 
-        if right_child.left is not None:
+        if not self._node_empty(right_child.left):
             right_child.left.parent = node
 
         right_child.left = node
 
         node.parent = right_child
 
-        self._refresh_height(right_child)
+        self._refresh_nodes_height(right_child)
         self._height_rebuild_needed = True
 
     def left_rotate(self, key):
@@ -574,7 +584,7 @@ class BSTree(Tree):
 
         The paramater "node" is the y node in the left tree.
         """
-        if node.right is None:
+        if self._node_empty(node.right):
             raise ValueError('node\'s left child shouldn\'t be None.')
 
         left_child = node.left
@@ -593,14 +603,14 @@ class BSTree(Tree):
 
         node.left = left_child.right
 
-        if left_child.right is not None:
+        if not self._node_empty(left_child.right):
             left_child.right.parent = node
 
         left_child.right = node
 
         node.parent = left_child
 
-        self._refresh_height(left_child)
+        self._refresh_nodes_height(left_child)
         self._height_rebuild_needed = True
 
     def right_rotate(self, key):
