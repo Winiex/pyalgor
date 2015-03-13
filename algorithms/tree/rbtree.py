@@ -5,7 +5,6 @@ class Color(object):
     """
     Color object represents the RBTNode's color.
     """
-
     BLACK = 0
     RED = 1
 
@@ -34,10 +33,10 @@ class Color(object):
     def red(self):
         return Color(Color.RED)
 
-    # It's not elegant to do color changing likes
-    # "rbt.root.color.color = Color.BLACK". With turn_black
+    # It's not elegant to deal with color changing likes
+    # "rbt.root.color.color = Color.BLACK". Using turn_black
     # and turn_red methods, color changing could be like
-    # "rbt.root.color.turn_black()".
+    # "rbt.root.color.turn_black()", which is more self-explained.
     def turn_black(self):
         self.__color = Color.BLACK
 
@@ -58,7 +57,7 @@ class Color(object):
 
 
 class RBTNode(BSTNode):
-
+    # Using __slots__ property makes node object occupy less memory.
     __slots__ = ('_key', '_value', '_children',
                  '_height', '_parent', '__color',
                  '__left', '__right')
