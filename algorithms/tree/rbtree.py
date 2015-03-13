@@ -125,7 +125,7 @@ class RBTree(BSTree):
 
     def _is_root(self, node):
         """
-        Judges whether the node is the root.o
+        Judges whether the node is the root.
 
         Because when a RBTNode is the root, it's parent
         isn't None but RBTree.NIL, causing the result of
@@ -227,14 +227,11 @@ class RBTree(BSTree):
                     break
 
                 if uncle.color.is_black():
-
                     parent.color.turn_black()
                     parent.parent.color.turn_red()
                     self._right_rotate(parent.parent)
                     break
-
                 elif uncle.color.is_red():
-
                     parent.color.turn_black()
                     uncle.color.turn_black()
                     parent.parent.color.turn_red()
@@ -248,14 +245,11 @@ class RBTree(BSTree):
                     break
 
                 if uncle.color.is_black():
-
                     parent.color.turn_black()
                     parent.parent.color.turn_red()
                     self._left_rotate(parent.parent)
                     break
-
                 elif uncle.color.is_red():
-
                     parent.color.turn_black()
                     uncle.color.turn_black()
                     parent.parent.color.turn_red()
