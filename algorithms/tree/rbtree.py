@@ -26,11 +26,11 @@ class Color(object):
         return 'BLACK' if self.__color == 0 else 'RED'
 
     @classmethod
-    def black(self):
+    def black(cls):
         return Color(Color.BLACK)
 
     @classmethod
-    def red(self):
+    def red(cls):
         return Color(Color.RED)
 
     # It's not elegant to deal with color changing likes
@@ -57,6 +57,9 @@ class Color(object):
 
 
 class RBTNode(BSTNode):
+    """
+    Red-black tree node.
+    """
     # Using __slots__ property makes node object occupy less memory.
     __slots__ = ('_key', '_value', '_children',
                  '_height', '_parent', '__color',
@@ -109,7 +112,9 @@ class RBTNode(BSTNode):
 
 
 class RBTree(BSTree):
-
+    """
+    Red-black tree.
+    """
     NIL = RBTNode(None, None, -1, None,
                   Color.black(), None, None)
 
