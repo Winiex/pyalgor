@@ -305,7 +305,7 @@ class BSTree(Tree):
 
     def _remove(self, node):
         """
-        Removes the specific node from the tree.o
+        Removes the specific node from the tree.
         """
         if self._is_root(node):
             successor = self._successor(node)
@@ -456,9 +456,9 @@ class BSTree(Tree):
 
     def successor(self, key):
         """
-        Gets the successor of a node with the specified key.
+        Get the successor of a node with the specified key.
 
-        Returns None if the successor doesn't exist.
+        Return None if the successor doesn't exist.
         """
         node = self.search(key)
 
@@ -466,9 +466,9 @@ class BSTree(Tree):
 
     def _predecessor(self, node):
         """
-        Gets the predecessor of a node.
+        Get the predecessor of a node.
 
-        Returns None if the predecessor doesn't exist.
+        Return None if the predecessor doesn't exist.
         """
         if not self._node_empty(node.left):
             return subtree_max(node.left, self)
@@ -484,9 +484,9 @@ class BSTree(Tree):
 
     def predecessor(self, key):
         """
-        Gets the predecessor of a node with the specified key.
+        Get the predecessor of a node with the specified key.
 
-        Returns None if the predecessor doesn't exist.
+        Return None if the predecessor doesn't exist.
         """
         node = self.search(key)
 
@@ -620,7 +620,7 @@ class BSTree(Tree):
 
     def transplant(self, from_key, to_key):
         """
-        Transplants node with from_key and its subtree
+        Transplant node with from_key and its subtree
         to positio of node with to_key.
         """
         from_node = self.search(from_key)
