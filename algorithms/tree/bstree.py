@@ -1,4 +1,5 @@
-from .tree import TNode, Tree, DFIter, BFIter
+from .bintree import BTNode, BinaryTree
+from .iters import DFIter, BFIter, PreOrderIter, InOrderIter, PostOrderIter
 
 
 def subtree_min(root, tree):
@@ -53,210 +54,19 @@ def subtree_max(root, tree):
     return node
 
 
-class PreOrderIter(DFIter):
-    """
-    Pre-order iterator.
-    """
-    def __init__(self, root, tree):
-        super(PreOrderIter, self).__init__(root, tree)
-
-    def _get_next(self):
-        frame = self._pop_stack()
-
-        if frame is None:
-            return None
-
-        node = frame[0]
-
-        self._push_stack(node[1], 0)
-        self._push_stack(node[0], 0)
-        return node
+class BSTNode(BTNode):
+    pass
 
 
-class InOrderIter(DFIter):
-    """
-    In-order iterator.
-    """
-    def __init__(self, root, tree):
-        super(InOrderIter, self).__init__(root, tree)
-
-    def _get_next(self):
-        frame = self._pop_stack()
-
-        if frame is None:
-            return None
-
-        node = frame[0]
-        child_to = frame[1]
-
-        if child_to == 1:
-            self._push_stack(node[1], 0)
-            return node
-
-        while True:
-            if not self._node_empty(node[0]):
-                self._push_stack(node, 1)
-                node = node[0]
-            else:
-                self._push_stack(node[1], 0)
-                return node
-
-
-class PostOrderIter(DFIter):
-    """
-    Post-order iterator.
-    """
-    # The CONTINUE object is used to
-    # decide whether we should invoke
-    # the "_get_next" method again in the
-    # "next" method until we get the node
-    # returned next.
-    CONTINUE = object()
-
-    def __init__(self, root, tree):
-        super(PostOrderIter, self).__init__(root, tree)
-        self.__previous = None
-        self.__current = None
-
-    def _get_next(self):
-        frame = self._stack_top()
-
-        if frame is None:
-            return None
-
-        result = self.CONTINUE
-
-        # The child_to is not used in procedure followed,
-        # so we don't access it, and just store 0 in the
-        # frame.
-        self.__current = frame[0]
-
-        if self._node_empty(self.__previous) or \
-           self.__previous.left is self.__current or \
-           self.__previous.right is self.__current:
-
-            if not self._node_empty(self.__current.left):
-                self._push_stack(self.__current.left, 0)
-            elif not self._node_empty(self.__current.right):
-                self._push_stack(self.__current.right, 0)
-            else:
-                self._pop_stack()
-                result = self.__current
-
-        elif self.__current.left is self.__previous:
-
-            if not self._node_empty(self.__current.right):
-                self._push_stack(self.__current.right, 0)
-            else:
-                self._pop_stack()
-                result = self.__current
-
-        elif self.__current.right is self.__previous:
-            self._pop_stack()
-            result = self.__current
-
-        self.__previous = self.__current
-
-        return result
-
-    def next(self):
-        while True:
-            result = self._get_next()
-
-            if result is self.CONTINUE:
-                # When it returns CONTINUE object,
-                # we should invoke _get_next method
-                # again.
-                continue
-            elif result is None:
-                raise StopIteration()
-            else:
-                return result
-
-
-class BSTNode(TNode):
-    """
-    Binary search tree node.
-    """
-
-    __slots__ = ('_key', '_value', '_children',
-                 '_height', '_parent', '__left', '__right')
-
-    def __init__(self, key, value, height,
-                 parent, left=None, right=None):
-        children = [left, right]
-
-        super(BSTNode, self).__init__(
-            key, value, height, parent, children
-        )
-
-        self.__left = left
-        self.__right = right
-
-    @property
-    def left(self):
-        return self.__left
-
-    @left.setter
-    def left(self, left):
-        self.__left = left
-        self._children[0] = left
-
-    @property
-    def right(self):
-        return self.__right
-
-    @right.setter
-    def right(self, right):
-        self.__right = right
-        self._children[1] = right
-
-    @property
-    def parent_side(self):
-        """
-        Judges the node is on which side of its parent.
-
-        On the left returns 0, on the right returns 1.
-        If the node has no parent, the method returns -1.
-        """
-        if self._node_empty(self._parent):
-            return -1
-
-        if self._parent.left is self:
-            return 0
-        elif self._parent.right is self:
-            return 1
-        else:
-            raise ValueError('Node invalid.')
-
-    def __setitem__(self, key, value):
-        super(BSTNode, self).__setitem__(key, value)
-
-        if key == 0:
-            self.__left = value
-        elif key == 1:
-            self.__right = value
-
-    def __repr__(self):
-        return '<BTNode: key %s, value %s>' % \
-            (self._key, self._value)
-
-    def free(self):
-        super(BSTNode, self).free()
-        self.__left = None
-        self.__right = None
-
-
-class BSTree(Tree):
+class BinarySearchTree(BinaryTree):
     """
     Binary search tree.
     """
+    _accept_iters = (DFIter, BFIter, PreOrderIter,
+                     InOrderIter, PostOrderIter)
 
-    _allowed_iters = (DFIter, BFIter, PreOrderIter,
-                      InOrderIter, PostOrderIter)
-
-    def __init__(self, root=None, iter_type=None):
-        super(BSTree, self).__init__(root, iter_type)
+    def __init__(self, root=None, iter_type=None, append_mode=False):
+        super(BinarySearchTree, self).__init__(root, iter_type, append_mode)
 
     def __new_node(self, key, value, height, parent,
                    left=None, right=None):

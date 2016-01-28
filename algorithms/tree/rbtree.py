@@ -1,3 +1,4 @@
+from .exception import AppendModeException
 from .bstree import BSTree, BSTNode
 
 
@@ -8,10 +9,10 @@ class Color(object):
     BLACK = 0
     RED = 1
 
-    __allowed_colors = (BLACK, RED)
+    _accept_colors = (BLACK, RED)
 
     def __init__(self, color):
-        if color not in self.__allowed_colors:
+        if color not in self._accept_colors:
             raise ValueError('color value invalid,'
                              'it should be 0(BLACK) or 1(RED)')
         self.__color = color
@@ -87,7 +88,7 @@ class RBTNode(BSTNode):
             return True
 
         for child in self.children:
-            if child is not RBTree.NIL:
+            if child is not RedBlackTree.NIL:
                 return False
 
         return True
@@ -97,7 +98,7 @@ class RBTNode(BSTNode):
         self.color = None
 
     def __repr__(self):
-        if self is RBTree.NIL:
+        if self is RedBlackTree.NIL:
             return '<RBTNode: NIL>'
 
         repr_info = [self.key, self.value]
@@ -111,15 +112,15 @@ class RBTNode(BSTNode):
             % tuple(repr_info)
 
 
-class RBTree(BSTree):
+class RedBlackTree(BSTree):
     """
     Red-black tree.
     """
     NIL = RBTNode(None, None, -1, None,
                   Color.black(), None, None)
 
-    def __init__(self, root=None, iter_type=None):
-        super(RBTree, self).__init__(root, iter_type)
+    def __init__(self, root=None, iter_type=None, append_mode=False):
+        super(RedBlackTree, self).__init__(root, iter_type, append_mode)
         if root is None:
             self._root = self.NIL
 
@@ -133,9 +134,9 @@ class RBTree(BSTree):
         Judges whether the node is the root.
 
         Because when a RBTNode is the root, it's parent
-        isn't None but RBTree.NIL, causing the result of
+        isn't None but RedBlackTree.NIL, causing the result of
         Tree._is_root being not correct. Because of
-        this, we should define the RBTree's own _is_root.
+        this, we should define the RedBlackTree's own _is_root.
         """
         return node.parent is self.NIL
 
@@ -143,6 +144,9 @@ class RBTree(BSTree):
         return node is self.NIL
 
     def insert(self, key, value):
+        if not self._append_mode:
+            raise AppendModeException('BinaryTree must be in append mode.')
+
         new_node = self.NIL
 
         if self._root is self.NIL:
