@@ -21,64 +21,26 @@ class Solution(object):
         node1 = l1
         node2 = l2
 
-        result = node1.val + node2.val
+        node = s_node = ListNode(-1)
 
-        if result >= 10:
-            carry = 1
-            result = result - 10
-        else:
-            carry = 0
+        sum = 0
 
-        node = result_node = ListNode(result)
-        node1 = node1.next
-        node2 = node2.next
-
-        while node1 is not None and \
+        while node1 is not None or \
                 node2 is not None:
-            result = node1.val + node2.val + carry
+            sum /= 10
 
-            if result >= 10:
-                carry = 1
-                result = result - 10
-            else:
-                carry = 0
-
-            node.next = ListNode(result)
-            node = node.next
-
-            node1 = node1.next
-            node2 = node2.next
-
-        if node1 is None:
-            while node2 is not None:
-                result = node2.val + carry
-
-                if result >= 10:
-                    carry = 1
-                    result = result - 10
-                else:
-                    carry = 0
-
-                node.next = ListNode(result)
-                node = node.next
-
-                node2 = node2.next
-        elif node2 is None:
-            while node1 is not None:
-                result = node1.val + carry
-
-                if result >= 10:
-                    carry = 1
-                    result = result - 10
-                else:
-                    carry = 0
-
-                node.next = ListNode(result)
-                node = node.next
-
+            if node1 is not None:
+                sum += node1.val
                 node1 = node1.next
 
-        if carry != 0:
-            node.next = ListNode(carry)
+            if node2 is not None:
+                sum += node2.val
+                node2 = node2.next
 
-        return result_node
+            node.next = ListNode(sum % 10)
+            node = node.next
+
+        if sum / 10 == 1:
+            node.next = ListNode(1)
+
+        return s_node.next
