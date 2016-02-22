@@ -45,3 +45,9 @@ def dp(chars):
                 longest_length = step + 1
 
     return longest_length
+
+
+def specific(chars):
+    """
+    The problem specific solution.
+    """
