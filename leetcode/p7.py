@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # https://leetcode.com/problems/reverse-integer/
-import math
 
 
 class Solution(object):
@@ -27,13 +26,13 @@ class Solution(object):
         expo = 0
 
         while digits:
-            digit = digits.pop(-1)
-            result += digit * int(math.pow(10, expo))
+            digit = digits.pop(0)
+            result = result * 10 + digit
             expo += 1
 
         result = -result if neg else result
 
-        if result > 2147483647:
+        if result > 2147483647 or result < -2147483648:
             return 0
 
         return result
