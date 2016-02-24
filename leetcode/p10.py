@@ -153,8 +153,11 @@ class DFSM(object):
         return match
 
 
-class Solution(object):
-
+class Solution1(object):
+    """
+    The solution based on state mathine theory.
+    Unfortunately, it exceeds the time limit.
+    """
     def isMatch(self, s, p):
         """
         :type s: str
@@ -163,3 +166,41 @@ class Solution(object):
         """
         dfsm = DFSM(p)
         return dfsm.match(s)
+
+
+class Solution2(object):
+    """
+    The dynamic programming solution, recursively.
+    """
+    def isMatch(self, s, p):
+        """
+        :type s: str
+        :type p: str
+        :rtype: bool
+        """
+        s_len = len(s)
+        p_len = len(p)
+
+        s_inx = 1
+        p_inx = 1
+
+        memo = [[i for i in xrange(p_len)]
+                for j in s_len]
+        # Pattern '' matches string ''.
+        memo[0][0] = True
+
+        while s_inx < s_len:
+            while p_inx < p_len:
+                p_char = p[p_inx]
+
+                if p_char == '*':
+                    pass
+                else:
+                    if memo[s_inx - 1][p_inx - 1]:
+                        pass
+                    else:
+                        pass
+                    if p_char == '.' and memo[s_inx - 1][p_inx - 1]:
+                        memo[s_inx][p_inx] = True
+                p_inx += 1
+            s_inx += 1
