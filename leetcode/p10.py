@@ -30,109 +30,117 @@ class State(object):
     def set_t(self, t):
         self.t = t
 
+    def __repr__(self):
+        return '<State t: %s, n:%s>' % (self.t, self.n)
+
 
 class DFSM(object):
 
     def __init__(self, p):
         self.p = p
+        self.stat_count = 0
         self._build(p)
+
+    def _new_state(self, t):
+        self.stat_count += 1
+        return State(t, self.stat_count)
+
+    def _zero_char_stats(self, stat):
+        z_stats = []
+        stats = [stat]
+
+        while stats:
+            stat = stats.pop(0)
+
+            for trans, to_stat in stat.trans.items():
+                if trans == '':
+                    z_stats.append(to_stat)
+                    stats.append(to_stat)
+
+        return z_stats
 
     def _build(self, p):
         stack = []
+        dfsm_start = self._new_state(4)
 
         for c in p:
             if c == '*':
-                trans = stack.pop(-1)
-                stat = self._repeat(trans)
-                stack.append(stat)
+                start, _ = stack.pop(-1)
+                repeat_c = start.trans.keys()[0]
+                stat = self._repeat(repeat_c)
             else:
-                stack.append(c)
+                stat = self._char(c)
 
-        s_cur = dfsm_start = State(None, 4)
+            stack.append(stat)
+
+        s_cur, e_cur = stack.pop(0)
+        dfsm_start.add_trans('^', s_cur)
 
         while stack:
-            stat = stack.pop(0)
+            start, end = stack.pop(0)
 
-            if isinstance(stat, tuple):
-                start, end = stat
-                s_cur.add_trans('', start)
+            if len(s_cur.trans) == 1:
+                trans_c = s_cur.trans.keys()[0]
+                s_cur.trans[trans_c] = start
+            elif len(s_cur.trans) == 2:
+                repeat_c = s_cur.trans.keys()[0]
+                repeat_s = s_cur.trans[repeat_c]
 
-                s_cur = end
-            else:
-                s_cur.add_trans(stat)
+                repeat_s.trans[''] = start
+                s_cur.trans[''] = start
 
-                s_cur = stat
+            s_cur = start
+            e_cur = end
 
-        dfsm_end = State(None, 5)
-        s_cur.add_out(dfsm_end)
+        dfsm_end = self._new_state(5)
+        e_cur.add_trans('$', dfsm_end)
 
         self.start = dfsm_start
         self.end = dfsm_end
 
     def _char(self, c):
-        return State(c, 0)
+        start = self._new_state(2)
+        end = self._new_state(3)
+
+        start.add_trans(c, end)
+
+        return (start, end)
 
     def _repeat(self, c):
-        repeat = State(None, 1)
-        start = State(None, 2)
-        end = State(None, 3)
+        repeat = self._new_state(1)
+        start = self._new_state(2)
+        end = self._new_state(3)
 
-        start.add_out(c, repeat)
-        start.add_out('', end)
-        repeat.add_out(c, repeat)
-        repeat.add_out('', end)
+        start.add_trans(c, repeat)
+        start.add_trans('', end)
+        repeat.add_trans(c, repeat)
+        repeat.add_trans('', end)
 
         return (start, end)
 
     def match(self, s):
-        # w_inx = s.find('.*')
-
-        # if w_inx != -1:
-        #     after_w = s[w_inx + 2:]
-
-        # inx = 1
-        # s = '^%s$' % s
-        # stat = self.start.out[0]
-
-        # while stat.t != 5:
-        #     if stat.t == 0:
-        #         if s[inx] == '$':
-        #             return False
-
-        #         if stat.c == '.' or stat.c == s[inx]:
-        #             inx += 1
-        #             stat = stat.out[0]
-        #         else:
-        #             return False
-        #     elif stat.t == 1:
-        #         if s[inx] == '$':
-        #             return True
-
-        #         if stat.c == '.' or stat.c == s[inx]:
-        #             inx += 1
-        #             stat = stat.out[0]
-        #         else:
-        #             stat = stat.out[1]
-        #     elif stat.t == 2:
-        #         repeat_c = stat.out[0].c
-
-        #         if repeat_c == '.' or repeat_c == s[inx]:
-        #             stat = stat.out[0]
-        #         else:
-        #             stat = stat.out[1]
-        #     elif stat.t == 3:
-        #         stat = stat.out[0]
-
-        # if s[inx] == '$':
-        #     return True
-        # else:
-        #     return False
-        # inx = 1
-        # s = '^%s$' % s
-        stat = self.start.out[0]
+        # Running states.
+        s = '^%s$' % s
+        next_stats = []
+        stats = [self.start]
 
         for c in s:
-            pass
+            for stat in stats:
+                for trans_c, to_stat in stat.trans.items():
+                    if trans_c == '.' or trans_c == c:
+                        next_stats.append(to_stat)
+                        next_stats += self._zero_char_stats(to_stat)
+
+            stats = next_stats
+            next_stats = []
+
+        match = False
+
+        for stat in stats:
+            if stat.t == 5:
+                match = True
+
+        return match
 
 
 class Solution(object):
