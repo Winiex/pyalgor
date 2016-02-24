@@ -63,6 +63,16 @@ class DFSM(object):
         stack = []
         dfsm_start = self._new_state(4)
 
+        if p == '':
+            dfsm_end = self._new_state(5)
+            stat = self._new_state(0)
+            dfsm_start.add_trans('^', stat)
+            stat.add_trans('$', dfsm_end)
+            self.start = dfsm_start
+            self.end = dfsm_end
+
+            return
+
         for c in p:
             if c == '*':
                 start, _ = stack.pop(-1)
