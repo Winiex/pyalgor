@@ -170,7 +170,7 @@ class Solution1(object):
 
 class Solution2(object):
     """
-    The dynamic programming solution, recursively.
+    The dynamic programming solution, with memo.
     """
     def isMatch(self, s, p):
         """
@@ -182,25 +182,46 @@ class Solution2(object):
         p_len = len(p)
 
         s_inx = 1
-        p_inx = 1
 
-        memo = [[i for i in xrange(p_len)]
-                for j in s_len]
+        memo = [[False for i in xrange(p_len + 1)]
+                for j in xrange(s_len + 1)]
         # Pattern '' matches string ''.
         memo[0][0] = True
 
-        while s_inx < s_len:
-            while p_inx < p_len:
-                p_char = p[p_inx]
+        if p_len > 1 and p[1] == '*':
+            for i in xrange(1, p_len, 2):
+                if p[i - 1] != '*' and p[i] == '*':
+                    memo[0][i + 1] = True
+                else:
+                    break
+
+        while s_inx <= s_len:
+            s_char = s[s_inx - 1]
+
+            p_inx = 1
+            while p_inx <= p_len:
+                p_char = p[p_inx - 1]
 
                 if p_char == '*':
-                    pass
+                    repeat_p_char = p[p_inx - 2]
+
+                    if repeat_p_char == '.' or repeat_p_char == s_char:
+                        if memo[s_inx][p_inx - 1] or \
+                                memo[s_inx][p_inx - 2] or \
+                                memo[s_inx - 1][p_inx] or \
+                                memo[s_inx - 1][p_inx - 1] or \
+                                memo[s_inx - 1][p_inx - 2]:
+                            memo[s_inx][p_inx] = True
+                    else:
+                        if memo[s_inx][p_inx - 2]:
+                            memo[s_inx][p_inx] = True
                 else:
                     if memo[s_inx - 1][p_inx - 1]:
-                        pass
-                    else:
-                        pass
-                    if p_char == '.' and memo[s_inx - 1][p_inx - 1]:
-                        memo[s_inx][p_inx] = True
+                        if p_char == '.' or p_char == s_char:
+                            memo[s_inx][p_inx] = True
                 p_inx += 1
             s_inx += 1
+
+        print memo
+
+        return memo[s_len][p_len]
