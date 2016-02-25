@@ -222,6 +222,4 @@ class Solution2(object):
                 p_inx += 1
             s_inx += 1
 
-        print memo
-
         return memo[s_len][p_len]
