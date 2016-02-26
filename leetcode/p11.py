@@ -49,3 +49,43 @@ class Solution2(object):
         :type lines: List[int]
         :rtype: int
         """
+        l_len = len(lines)
+        l_inx = 0
+        r_inx = l_len - 1
+
+        max_water = 0
+        water = 0
+
+        while True:
+            width = r_inx - l_inx
+            height = lines[l_inx] \
+                if lines[l_inx] < lines[r_inx] \
+                else lines[r_inx]
+
+            water = width * height
+
+            if water > max_water:
+                max_water = water
+
+            if lines[l_inx] < lines[r_inx]:
+                tmp_inx = l_inx + 1
+                while tmp_inx < r_inx:
+                    if lines[tmp_inx] > lines[l_inx]:
+                        l_inx = tmp_inx
+                        break
+                    tmp_inx += 1
+
+                if tmp_inx == r_inx:
+                    break
+            else:
+                tmp_inx = r_inx - 1
+                while tmp_inx > l_inx:
+                    if lines[tmp_inx] > lines[r_inx]:
+                        r_inx = tmp_inx
+                        break
+                    tmp_inx -= 1
+
+                if tmp_inx == l_inx:
+                    break
+
+        return max_water
