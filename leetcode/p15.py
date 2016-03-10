@@ -12,50 +12,32 @@ class Solution(object):
         :type nums: List[int]
         :rtype: List[List[int]]
         """
-        memo = {}
         nums_len = len(nums)
-
-        for inx, num in enumerate(nums):
-            for inner_inx in xrange(inx + 1, nums_len):
-                num1, num2 = nums[inx], nums[inner_inx]
-
-                if num1 > num2:
-                    num1, num2 = num2, num1
-
-                value = num1 + num2
-
-                if value in memo:
-                    memo[value].append((num1, num2))
-                else:
-                    memo[value] = [(num1, num2)]
-
+        sorted_nums = sorted(nums)
         results = {}
 
-        for inx, num in enumerate(nums):
-            reverse_num = -num
+        for l_inx, num in enumerate(sorted_nums):
+            m_inx = l_inx + 1
+            r_inx = nums_len - 1
 
-            if reverse_num in memo:
-                for pair in memo[reverse_num]:
-                    if inx in pair:
-                        continue
+            while m_inx < r_inx:
+                sum_result = sorted_nums[l_inx] + \
+                    sorted_nums[m_inx] + \
+                    sorted_nums[r_inx]
 
-                    a = num
-                    b = pair[0]
-                    c = pair[1]
+                if sum_result > 0:
+                    r_inx -= 1
+                elif sum_result < 0:
+                    m_inx += 1
+                else:
+                    triple = (
+                        sorted_nums[l_inx],
+                        sorted_nums[m_inx],
+                        sorted_nums[r_inx]
+                    )
 
-                    if a > b:
-                        if c < b:
-                            a, b, c = c, b, a
-                        elif b <= c < a:
-                            a, b, c = b, c, a
-                        else:
-                            a, b, c = b, a, c
-                    else:
-                        if c < a:
-                            a, b, c = c, a, b
-                        elif a <= c < b:
-                            a, b, c = a, c, b
-
-                    results[(a, b, c)] = 1
+                    results[triple] = True
+                    m_inx += 1
+                    r_inx -= 1
 
         return results.keys()
